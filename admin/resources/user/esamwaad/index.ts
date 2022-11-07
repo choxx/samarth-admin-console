@@ -10,9 +10,9 @@ export default {
   edit: UserEdit,
   create: UserCreate,
   permissions: {
-    canEdit: ["Admin","school"],
-    canDelete: ["Admin"],
-    canCreate: ["Admin"],
-    canList: ["Admin","school"],
+    canEdit: ["Admin","State Admin", "District Admin", "Block Admin", "School Admin"],
+    // canDelete: ["Admin"],
+    canCreate: ["Admin","State Admin", "District Admin"],
+    canList: ["Admin",,"State Admin", "District Admin","Block Admin","School Admin"],
   },
 };
