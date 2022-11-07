@@ -1,6 +1,6 @@
 import { client } from "../api-clients/users-client";
 
-const AuthApplicationID = "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da";
+const AuthApplicationID = "77638847-db34-4331-b369-5768fdfededd";
 
 export const getToken = async (userName: string, password: string) => {
   const body: any = {

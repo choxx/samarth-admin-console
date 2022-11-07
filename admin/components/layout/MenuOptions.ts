@@ -17,14 +17,14 @@ const MenuOptions: any[] = [
 
     resource: "student",
     props: student,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
   },
   {
     name: "Teacher",
     icon: "SchoolIcon",
     resource: "teacher",
     props: teacher,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin"],
   },
   {
     name: "E Samwaad Users",
@@ -33,39 +33,41 @@ const MenuOptions: any[] = [
 
     icon: "SchoolIcon",
 
-    permissions: ["Admin","school"],
+    permissions: [
+      "Admin",
+      "State Admin",
+      "District Admin",
+      "Block Admin",
+      "School Admin",
+    ],
   },
   {
     name: "Shiksha Saathi Users",
     resource: "shiksha_saathi_user",
     props: ShikshaSaathi,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
     icon: "SchoolIcon",
-
   },
   {
     name: "School",
     resource: "school",
     props: school,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
     icon: "SchoolIcon",
-
   },
   {
     name: "Location",
     resource: "location",
     props: location,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin"],
     icon: "SchoolIcon",
-
   },
   {
     name: "Grade Assessment",
     resource: "grade_assessment",
     props: gradeAssessment,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin"],
     icon: "SchoolIcon",
-
   },
   // {
   //   name: "Assessment",
@@ -79,9 +81,8 @@ const MenuOptions: any[] = [
     name: "School Mapping For Monitoring",
     resource: "ss_school_allocation_data",
     props: mapping,
-    permissions: ["Admin"],
+    permissions: ["Admin", "State Admin"],
     icon: "SchoolIcon",
-
   },
 ];
 export const MenuItemsWithPermissionResolver = (permissions: any) => {
