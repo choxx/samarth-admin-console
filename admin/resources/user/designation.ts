@@ -1,5 +1,12 @@
 import * as _ from "lodash";
 import data from "./district-block-cluster.json";
+
+function parseJwt(token: any) {
+  var base64Payload = token.split('.')[1];
+  var payload = Buffer.from(base64Payload, 'base64');
+  return JSON.parse(payload.toString());
+}
+
 const designationLevels = [
   {
     designation: "BEEO",
@@ -88,9 +95,10 @@ export const getLowerDesignationsChoices = (_user: any) => {
   if (!user) {
     return [];
   }
-  // const level = user?.data?.roleData?.geographic_level;
 
-  const level = user?.data?.roleData;
+  const tokenDetails = parseJwt(localStorage.getItem('jwtToken'));
+  // const level = user?.data?.roleData?.geographic_level;
+  const level = user?.registrations?.filter((el: any) => el.applicationId == tokenDetails.applicationId)?.[0]?.data?.roleData || user?.data?.roleData;
   if (!level) {
     return [];
   }

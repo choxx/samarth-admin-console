@@ -36,9 +36,10 @@ const dataProvider = {
     }
 
     // Pass the UDISES as per Esamwaad Roles Access in the below array.
-    const UDISES = [2100600104, 110, 2080210301].join(" ");
+    // const UDISES = [2100600104, 110, 2080210301].join(" ");
     if (resource == "e_samwaad_user") {
-      queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
+      // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
+      queryString = [`registrations.applicationId:${Applications[resource]}`]
     }
 
     if (filter && Object.keys(filter).length > 0) {
