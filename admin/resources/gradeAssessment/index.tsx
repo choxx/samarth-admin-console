@@ -9,9 +9,9 @@ export default {
   edit: GradeAssessmentEdit,
   show: GradeAssessmentShow,
   permissions: {
-    canEdit: ["Admin"],
-    canDelete: ["Admin"],
-    canCreate: ["Admin"],
-    canList: ["Admin"],
+    canEdit: ["Admin","State Admin"],
+    // canDelete: ["Admin"],
+    canCreate: ["Admin","State Admin"],
+    canList: ["Admin","State Admin"],
   },
 };

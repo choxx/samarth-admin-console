@@ -24,7 +24,7 @@ import {
   SaveButton,
 } from "react-admin";
 import { designationESamwaad, designationLevels } from "./designation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, MenuItem, Select, Typography } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
 import { useController } from "react-hook-form";
@@ -82,8 +82,8 @@ export const SchoolUDISEInput = () => {
         {data?.data?.name
           ? `School: ${data?.data?.name}`
           : isLoading
-          ? "Loading..."
-          : "No School"}
+            ? "Loading..."
+            : "No School"}
       </Typography>
       <TextInput
         source={"data.udise"}
@@ -246,7 +246,8 @@ const inputChoices = {
 //     </>
 //   );
 // };
-const UserForm = () => {
+const UserForm = (props: any) => {
+  const { setSchoolId } = props;
   const record = useRecordContext();
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
@@ -259,6 +260,19 @@ const UserForm = () => {
       ]?.roles,
   });
   const dataProvider = useDataProvider();
+  useEffect(() => {
+    dataProvider.getList("teacher", {
+      pagination: { perPage: 1, page: 1 },
+      sort: { field: "id", order: "asc" },
+      filter: { user_id: record.id },
+    }).then(res => {
+      console.log(res.data)
+      if (res?.data?.length > 0) {
+        setSchoolId(res.data[0].school_id)
+        setState({ ...state, designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
+      }
+    })
+  }, [])
 
   const udiseValidation = async (value: any) => {
     const res = await dataProvider.getList("school", {
@@ -330,7 +344,6 @@ const UserForm = () => {
         validate={inputConstraints.role}
       />
 
-      {console.log({ state })}
       {state.roles &&
         (state.roles.includes("Principal") ||
           state.roles.includes("Teacher")) && (
@@ -354,7 +367,6 @@ const UserForm = () => {
               label="Account Status"
               choices={inputChoices.accountStatuses}
               validate={inputConstraints.accountStatus}
-              defaultValue={record?.usernameStatus}
             />
             <SelectInput
               value={state.modeOfEmployment}
@@ -415,6 +427,7 @@ const UserEdit = () => {
   const redirect = useRedirect();
   const params = useParams();
   const refresh = useRefresh();
+  const [schoolId, setSchoolId] = useState(0);
   const { mutate, isLoading } = useMutation(
     ["updateUser", params.id],
     (value) => dataProvider.updateUser(resource, value),
@@ -434,7 +447,6 @@ const UserEdit = () => {
       <SimpleForm
         toolbar={<UserEditToolbar />}
         onSubmit={(values) => {
-          console.log({values});
           const _v: any = {
             mobilePhone: values["mobilePhone"],
             firstName: values["firstName"],
@@ -463,11 +475,27 @@ const UserEdit = () => {
             account_status: _v.account_status,
             employment: _v.employment,
           };
+          if (values.designation || values.mode_of_employment) {
+            _v['hasuraMutations'] = [
+              {
+                applicationId: 'f0ddb3f6-091b-45e4-8c0f-889f89d4f5da',
+                mutation: "updateTeacherDesignationSchoolStatusAndEmployment",
+                payload: {
+                  user_id: values.id,
+                  account_status: values.account_status || "",
+                  employment: values.mode_of_employment || "",
+                  designation: values.designation || "",
+                  school_id: schoolId
+                }
+              }
+            ]
+          }
+          // console.log(values, _v);
           mutate(_v);
           notify(`User updated successfully`, { type: "success" });
         }}
       >
-        <UserForm />
+        <UserForm setSchoolId={setSchoolId} />
       </SimpleForm>
     </Edit>
   );

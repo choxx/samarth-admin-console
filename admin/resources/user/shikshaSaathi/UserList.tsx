@@ -132,6 +132,7 @@ const UserList = () => {
       };
     });
   }, [districtData]);
+  console.log(districts)
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];

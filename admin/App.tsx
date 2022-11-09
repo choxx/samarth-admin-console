@@ -41,7 +41,7 @@ const App = () => {
     role: "Admin",
     fullName: "Samarth-Admin",
     username: "samarth-admin",
-    applicationId: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
+    applicationId: "77638847-db34-4331-b369-5768fdfededd",
   };
   const JSONDataProvider = {
     ...JSONDp,
@@ -96,7 +96,7 @@ const App = () => {
       role: "Admin",
       fullName: "Samarth-Admin",
       username: "samarth-admin",
-      applicationId: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
+      applicationId: "77638847-db34-4331-b369-5768fdfededd",
     };
     prepareDataProviders(newSession);
   };

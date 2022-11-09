@@ -11,9 +11,9 @@ export default {
   show: LocationShow,
   create: LocationCreate,
   permissions: {
-    canEdit: ["Admin"],
-    canDelete: ["Admin"],
-    canCreate: ["Admin"],
-    canList: ["Admin"],
+    canEdit: ["Admin","State Admin"],
+    // canDelete: ["Admin"],
+    canCreate: ["Admin","State Admin"],
+    canList: ["Admin","State Admin"],
   },
 };

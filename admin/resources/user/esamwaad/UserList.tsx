@@ -27,6 +27,7 @@ const DisplayRoles = (a: any) => {
     return <span>-</span>;
   }
   const { roles } = registration;
+  if (!roles) return <></>;
   return roles.map((role: any, index: number) => {
     return (
       <span
