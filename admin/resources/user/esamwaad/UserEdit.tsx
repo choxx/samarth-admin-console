@@ -348,35 +348,66 @@ const UserForm = (props: any) => {
         (state.roles.includes("Principal") ||
           state.roles.includes("Teacher")) && (
           <>
-            <SelectInput
-              value={state.designation}
-              onChange={(e: any) =>
-                setState({ ...state, designation: e.target.value })
-              }
-              source="designation"
-              label="Designation"
-              choices={inputChoices.designations}
-              validate={inputConstraints.designation}
+            <FunctionField
+              render={(record: any) => {
+                return <div style={{ position: 'relative' }}>
+                  {!state.designationNew && state.designation && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
+                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Designation*</div>
+                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.designation}</p>
+                  </div>}
+                  <SelectInput
+                    value={state.designation}
+                    onChange={(e: any) =>
+                      setState({ ...state, designationNew: e.target.value })
+                    }
+                    source="designation"
+                    label="Designation"
+                    choices={inputChoices.designations}
+                    validate={inputConstraints.designation}
+                  />
+                </div>
+              }}
             />
-            <SelectInput
-              value={state.accountStatus}
-              onChange={(e: any) =>
-                setState({ ...state, accountStatus: e.target.value })
-              }
-              source="account_status"
-              label="Account Status"
-              choices={inputChoices.accountStatuses}
-              validate={inputConstraints.accountStatus}
+
+            <FunctionField
+              render={(record: any) => {
+                return <div style={{ position: 'relative' }}>
+                  {!state.accountStatusNew && state.accountStatus && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
+                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Account Status*</div>
+                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.accountStatus}</p>
+                  </div>}
+                  <SelectInput
+                    value={state.accountStatus}
+                    onChange={(e: any) =>
+                      setState({ ...state, accountStatusNew: e.target.value })
+                    }
+                    source="account_status"
+                    label="Account Status"
+                    choices={inputChoices.accountStatuses}
+                    validate={inputConstraints.accountStatus}
+                  />
+                </div>
+              }}
             />
-            <SelectInput
-              value={state.modeOfEmployment}
-              onChange={(e: any) =>
-                setState({ ...state, modeOfEmployment: e.target.value })
-              }
-              source="mode_of_employment"
-              label="Mode of employment"
-              validate={inputConstraints.modeOfEmployment}
-              choices={inputChoices.employment}
+            <FunctionField
+              render={() => {
+                return <div style={{ position: 'relative' }}>
+                  {!state.modeOfEmploymentNew && state.modeOfEmployment && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
+                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.7rem', margin: '5px 0px 0px 5px' }}>Mode of employment*</div>
+                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.modeOfEmployment}</p>
+                  </div>}
+                  <SelectInput
+                    value={state.modeOfEmployment}
+                    onChange={(e: any) =>
+                      setState({ ...state, modeOfEmploymentNew: e.target.value })
+                    }
+                    source="mode_of_employment"
+                    label="Mode of employment"
+                    validate={inputConstraints.modeOfEmployment}
+                    choices={inputChoices.employment}
+                  />
+                </div>
+              }}
             />
           </>
         )}
