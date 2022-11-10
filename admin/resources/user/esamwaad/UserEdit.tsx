@@ -526,21 +526,19 @@ const UserEdit = () => {
             account_status: _v.account_status ? _v.account_status : extraState.accountStatus,
             employment: _v.employment ? _v.employment : extraState.modeOfEmployment,
           };
-          if (values.designation || values.mode_of_employment) {
-            _v['hasuraMutations'] = [
-              {
-                applicationId: 'f0ddb3f6-091b-45e4-8c0f-889f89d4f5da',
-                mutation: "updateTeacherDesignationSchoolStatusAndEmployment",
-                payload: {
-                  user_id: values.id,
-                  account_status: values.account_status ? values.account_status : extraState.accountStatus,
-                  employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment,
-                  designation: values.designation ? values.designation : extraState.designation,
-                  school_id: schoolId
-                }
+          _v['hasuraMutations'] = [
+            {
+              applicationId: 'f0ddb3f6-091b-45e4-8c0f-889f89d4f5da',
+              mutation: "updateTeacherDesignationSchoolStatusAndEmployment",
+              payload: {
+                user_id: values.id,
+                account_status: values.account_status ? values.account_status : extraState.accountStatus || "",
+                employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment || "",
+                designation: values.designation ? values.designation : extraState.designation || "",
+                school_id: schoolId
               }
-            ]
-          }
+            }
+          ]
           mutate(_v);
           notify(`User updated successfully`, { type: "success" });
         }}
