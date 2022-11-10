@@ -58,7 +58,7 @@ const UserCreate = (props: any) => {
         data: {
           accountName: state.fullName,
           phone: state.mobile,
-          roledata: {
+          roleData: {
             block: state.block,
             cluster: state.cluster,
             designation: state.designation,
@@ -79,8 +79,17 @@ const UserCreate = (props: any) => {
       if (data?.data?.responseCode === "OK") {
         notify(`User created successfully`, { type: 'success' });
         window.location.replace('/#/shiksha_saathi_user')
+      } else if (data?.data?.status != 200) {
+        const errorStrings: String[] = [];
+        const errors = data?.data?.exception?.fieldErrors;
+        Object.keys(errors).forEach(key => {
+          errorStrings.push(errors[key]?.[0]?.message);
+        })
+        notify(errorStrings.join(""), { type: 'warning' });
       }
-    });
+    }).catch(err => {
+      notify("An internal server error occured", { type: 'warning' });
+    });;
   };
 
   //   const designation = getLowerDesignations(_loggedInUser);
@@ -132,7 +141,7 @@ const UserCreate = (props: any) => {
     if (!districtData) {
       return [];
     }
-    if(!selectedDistrict){
+    if (!selectedDistrict) {
       return _.uniqBy(
         districtData,
         "block"
@@ -158,7 +167,7 @@ const UserCreate = (props: any) => {
     if (!districtData) {
       return [];
     }
-    if(!selectedBlock){
+    if (!selectedBlock) {
       return _.uniqBy(
         districtData,
         "cluster"
@@ -179,7 +188,12 @@ const UserCreate = (props: any) => {
       };
     });
   }, [selectedBlock, districtData]);
-  const validatePhoneNumber = [required(),number(),minLength(10,"Phone Number must be of 10 digit"),maxLength(10,"Phone Number must be of 10 digit")];
+  const validatePhoneNumber = [required(), number(), minLength(10, "Phone Number must be of 10 digit"), maxLength(10, "Phone Number must be of 10 digit")];
+  const validateName = required("Please enter a valid name");
+  const validateRole = required("Please select a role")
+  const validateDistricts = required("Please select a district")
+  const validateBlock = required("Please select a block")
+  const validateCluster = required("Please select a cluster")
   return userCreated ? (
     <>
       <p>User Successfully Created</p>
@@ -198,7 +212,7 @@ const UserCreate = (props: any) => {
           onChange={(e) => setState({ ...state, fullName: e.target.value })}
           source="fullName"
           label="Name"
-          validate={[required()]}
+          validate={validateName}
         />
         <TextInput
           onChange={(e) => setState({ ...state, mobile: e.target.value })}
@@ -222,6 +236,7 @@ const UserCreate = (props: any) => {
           source="designation"
           label="Designation"
           choices={designationChoices}
+          validate={validateRole}
         />
 
         {scope === "District" || scope === "Block" || scope === "Cluster" ? (
@@ -231,11 +246,12 @@ const UserCreate = (props: any) => {
               setSelectedDistrict(e.target.value);
               setSelectedBlock(null);
               setSelectedCluster(null);
-              setState({ ...state, cluster: e.target.value })
+              setState({ ...state, district: e.target.value })
             }}
             source="district"
             label="District"
             choices={districts}
+            validate={validateDistricts}
           />
         ) : null}
 
@@ -245,10 +261,11 @@ const UserCreate = (props: any) => {
             onChange={(e: any) => {
               setSelectedBlock(e.target.value);
               setSelectedCluster(null);
-              setState({ ...state, cluster: e.target.value })
+              setState({ ...state, block: e.target.value })
             }}
             source="block"
             label="Block"
+            validate={validateBlock}
             choices={blocks}
           />
         ) : null}
@@ -261,6 +278,7 @@ const UserCreate = (props: any) => {
             }}
             source="cluster"
             label="Cluster"
+            validate={validateCluster}
             choices={clusters}
           />
         ) : null}

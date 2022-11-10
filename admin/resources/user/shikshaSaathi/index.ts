@@ -12,7 +12,7 @@ export default {
   permissions: {
     canEdit: ["Admin", "State Admin", "District Admin", "Block Admin"],
     // canDelete: ["Admin"],
-    canCreate: ["Admin", "State Admin", "District Admin",],
+    canCreate: ["Admin", "State Admin"],
     canList: ["Admin", "State Admin", "District Admin", "Block Admin"],
   },
 };

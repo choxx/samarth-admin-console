@@ -33,7 +33,7 @@ const UserCreate = (props: any) => {
     userName: "",
     fullName: "",
     mobile: "",
-    roles: ["school"],
+    roles: "school",
     udise: school?.udise,
     school: school?.id,
     designation: "",
@@ -53,7 +53,7 @@ const UserCreate = (props: any) => {
     const body: any = {
       registration: {
         applicationId: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
-        roles: state.roles,
+        roles: [state.roles],
         username: state.userName,
       },
       user: {
@@ -109,7 +109,7 @@ const UserCreate = (props: any) => {
   const inputChoices = {
     designations: designationESamwaad.map(el => { return { id: el.designation, name: el.designation } }),
     accountStatuses: ["ACTIVE", "DEACTIVATED", "PENDING", "REJECTED"].map(el => { return { id: el, name: el } }),
-    roles: ["Teacher", "Principal", "school"].map(el => { return { id: el, name: el } }),
+    roles: ["school"].map(el => { return { id: el, name: el } }),
     employment: ["Permanent", "Contractual"].map(el => { return { id: el, name: el } })
   }
 
@@ -167,7 +167,7 @@ const UserCreate = (props: any) => {
           label="Mobile Phone"
           validate={inputConstraints.mobile}
         />
-        <SelectArrayInput
+        <SelectInput
           onChange={(e) => setState({ ...state, roles: e.target.value })}
           source="roles"
           choices={inputChoices.roles}
