@@ -324,14 +324,14 @@ const UserEdit = () => {
                 district: values?.district,
                 block: values?.block,
                 cluster: values?.cluster,
-                designation: values?.designation,
+                designation: Array.isArray(values?.designation) ? values?.designation[0] : values?.designation,
                 geographic_level: geographic_level,
               },
             },
             registrations: [
               {
                 applicationId: "1ae074db-32f3-4714-a150-cc8a370eafd1",
-                roles: [values?.designation],
+                roles: Array.isArray(values?.designation) ? values?.designation : [values?.designation],
               },
             ],
             id: values.id,
