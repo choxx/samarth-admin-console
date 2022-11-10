@@ -247,7 +247,7 @@ const inputChoices = {
 //   );
 // };
 const UserForm = (props: any) => {
-  const { setSchoolId } = props;
+  const { setSchoolId, setExtraState } = props;
   const record = useRecordContext();
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
@@ -270,6 +270,7 @@ const UserForm = (props: any) => {
       if (res?.data?.length > 0) {
         setSchoolId(res.data[0].school_id)
         setState({ ...state, designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
+        setExtraState({ designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
       }
     })
   }, [])
@@ -281,6 +282,24 @@ const UserForm = (props: any) => {
       filter: { udise: value },
     });
     if (res?.data?.length == 0) return "Please enter a valid UDISE";
+    setSchoolId(res.data[0].id);
+    return undefined;
+  };
+
+  const designationValidation = async (value: any) => {
+    if (!state.designation && !value) {
+      return "Please select a designation";
+    }
+    return undefined;
+  };
+  const accStatusValidation = async (value: any) => {
+    if (!state.accountStatus && !value)
+      return "Please select account status";
+    return undefined;
+  };
+  const employmentValidation = async (value: any) => {
+    if (!state.accountStatus && !value)
+      return "Please select employment type";
     return undefined;
   };
 
@@ -309,9 +328,9 @@ const UserForm = (props: any) => {
       maxLength(10, "Mobile cannot be more than 10 digits"),
     ],
     role: required("Please select a role"),
-    designation: required("Please select a designation"),
-    accountStatus: required("Please select account status"),
-    modeOfEmployment: required("Please select mode of employment"),
+    designation: [designationValidation],
+    accountStatus: [accStatusValidation],
+    modeOfEmployment: [employmentValidation]
   };
   return (
     <>
@@ -459,6 +478,7 @@ const UserEdit = () => {
   const params = useParams();
   const refresh = useRefresh();
   const [schoolId, setSchoolId] = useState(0);
+  const [extraState, setExtraState] = useState<any>({});
   const { mutate, isLoading } = useMutation(
     ["updateUser", params.id],
     (value) => dataProvider.updateUser(resource, value),
@@ -494,17 +514,17 @@ const UserEdit = () => {
                 roles: values?.roles,
               },
             ],
-            designation: values.designation,
+            designation: values.designation ? values.designation : extraState.designation,
             id: values.id,
-            account_status: values.account_status,
-            employment: values.employment,
+            account_status: values.account_status ? values.account_status : extraState.accountStatus,
+            employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment,
           };
           _v["gql"] = {
-            designation: _v.designation,
-            cadre: _v.designation,
+            designation: _v.designation ? _v.designation : extraState.designation,
+            cadre: _v.designation ? _v.designation : extraState.designation,
             school_id: values?.data.school,
-            account_status: _v.account_status,
-            employment: _v.employment,
+            account_status: _v.account_status ? _v.account_status : extraState.accountStatus,
+            employment: _v.employment ? _v.employment : extraState.modeOfEmployment,
           };
           if (values.designation || values.mode_of_employment) {
             _v['hasuraMutations'] = [
@@ -513,20 +533,19 @@ const UserEdit = () => {
                 mutation: "updateTeacherDesignationSchoolStatusAndEmployment",
                 payload: {
                   user_id: values.id,
-                  account_status: values.account_status || "",
-                  employment: values.mode_of_employment || "",
-                  designation: values.designation || "",
+                  account_status: values.account_status ? values.account_status : extraState.accountStatus,
+                  employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment,
+                  designation: values.designation ? values.designation : extraState.designation,
                   school_id: schoolId
                 }
               }
             ]
           }
-          // console.log(values, _v);
           mutate(_v);
           notify(`User updated successfully`, { type: "success" });
         }}
       >
-        <UserForm setSchoolId={setSchoolId} />
+        <UserForm setSchoolId={setSchoolId} setExtraState={setExtraState} />
       </SimpleForm>
     </Edit>
   );
