@@ -247,7 +247,7 @@ const inputChoices = {
 //   );
 // };
 const UserForm = (props: any) => {
-  const { setSchoolId, setExtraState } = props;
+  const { schoolId, setExtraState } = props;
   const record = useRecordContext();
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
@@ -268,7 +268,7 @@ const UserForm = (props: any) => {
     }).then(res => {
       console.log(res.data)
       if (res?.data?.length > 0) {
-        setSchoolId(res.data[0].school_id)
+        schoolId.current = res.data[0].school_id;
         setState({ ...state, designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
         setExtraState({ designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
       }
@@ -282,7 +282,7 @@ const UserForm = (props: any) => {
       filter: { udise: value },
     });
     if (res?.data?.length == 0) return "Please enter a valid UDISE";
-    setSchoolId(res.data[0].id);
+    schoolId.current = res.data[0].id;
     return undefined;
   };
 
@@ -477,7 +477,7 @@ const UserEdit = () => {
   const redirect = useRedirect();
   const params = useParams();
   const refresh = useRefresh();
-  const [schoolId, setSchoolId] = useState(0);
+  const schoolId = useRef<any>();
   const [extraState, setExtraState] = useState<any>({});
   const { mutate, isLoading } = useMutation(
     ["updateUser", params.id],
@@ -505,7 +505,7 @@ const UserEdit = () => {
             data: {
               phone: values["mobilePhone"],
               accountName: values["firstName"],
-              school: values?.data.school,
+              school: schoolId.current,
               udise: values?.data.udise,
             },
             registrations: [
@@ -535,7 +535,7 @@ const UserEdit = () => {
                 account_status: values.account_status ? values.account_status : extraState.accountStatus || "",
                 employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment || "",
                 designation: values.designation ? values.designation : extraState.designation || "",
-                school_id: schoolId
+                school_id: schoolId.current
               }
             }
           ]
@@ -543,7 +543,7 @@ const UserEdit = () => {
           notify(`User updated successfully`, { type: "success" });
         }}
       >
-        <UserForm setSchoolId={setSchoolId} setExtraState={setExtraState} />
+        <UserForm schoolId={schoolId} setExtraState={setExtraState} />
       </SimpleForm>
     </Edit>
   );

@@ -122,9 +122,9 @@ const dataProvider = {
     delete data["id"];
     try {
       const response = await client.patch("/admin/updateUser/" + id, data);
-      if (d) {
-        await clientGQL(UPDATE_USER_BY_ID_QUERY, { object: d, id: id });
-      }
+      // if (d) {
+      //   await clientGQL(UPDATE_USER_BY_ID_QUERY, { object: d, id: id });
+      // }
       if (response?.data?.result) {
         return {
           data: response?.data?.result,
