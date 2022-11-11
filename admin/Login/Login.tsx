@@ -30,6 +30,7 @@ const Login = () => {
   const login = useLogin();
   const location = useLocation();
   const handleSubmit = async (auth: FormValues) => {
+    localStorage.clear();
     //@ts-ignore
     const isCorrect = await loginPreCheck(auth?.username, auth?.password);
     if (isCorrect) {
