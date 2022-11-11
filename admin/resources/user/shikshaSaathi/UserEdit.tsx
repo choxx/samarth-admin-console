@@ -98,9 +98,7 @@ const UserForm = () => {
     initialFilters?.cluster || ""
   );
 
-  const districtData = useMemo(() => {
-    return _districtData?.data;
-  }, [_districtData]);
+  const districtData = _districtData?.data;
 
   const districts = useMemo(() => {
     if (!districtData) {
