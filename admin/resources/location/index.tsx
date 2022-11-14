@@ -8,7 +8,7 @@ import LocationCreate from "./LocationCreate";
 export default {
   list: LocationList,
   edit: LocationEdit,
-  show: LocationShow,
+  // show: LocationShow,
   create: LocationCreate,
   permissions: {
     canEdit: ["Admin","State Admin"],

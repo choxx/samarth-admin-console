@@ -8,7 +8,7 @@ import SchoolCreate from "./SchoolCreate";
 export default {
   list: SchoolList,
   edit: SchoolEdit,
-  show: SchoolShow,
+  // show: SchoolShow,
   create: SchoolCreate,
   permissions: {
     canEdit: ["Admin", "State Admin","District Admin", "Block Admin"],

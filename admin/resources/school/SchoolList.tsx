@@ -53,6 +53,7 @@ const SchoolList = () => {
               },
               filters: Filters,
             }}
+            showExporter={true}
           >
             <TextField label="UDISE" source="udise" />
             <TextField label="Name" source="name" />

@@ -129,6 +129,7 @@ const LocationForm = () => {
           value={selectedDistrict}
           source="district"
           choices={districts}
+          validate={[required("Please select a district")]}
         />
         <TextInput source="block" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Block with appropriate name with aplhabets only.")]}/>
         <TextInput source="cluster" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Cluster with appropriate name with aplhabets only.")]}/>
