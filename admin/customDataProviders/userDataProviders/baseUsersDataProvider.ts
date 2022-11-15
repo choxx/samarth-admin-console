@@ -92,13 +92,26 @@ const dataProvider = {
   },
   getOne: async (resource: any, { id }: any): Promise<any> => {
     const params = {
-      queryString: id,
+      queryString: id
     };
     const response = await client.get("/admin/searchUser", { params });
 
     if (response?.data?.result) {
       return {
         data: response?.data?.result?.users[0],
+      };
+    }
+    return response;
+  },
+  getUserByUdise: async (resource: any, { id }: any): Promise<any> => {
+    const params = {
+      queryString: `(registrations.applicationId:f0ddb3f6-091b-45e4-8c0f-889f89d4f5da) AND (registrations.roles:school) AND (data.udise: ${id})`,
+    };
+    const response = await client.get("/admin/searchUser", { params });
+
+    if (response?.data?.result) {
+      return {
+        data: response?.data?.result?.users
       };
     }
     return response;

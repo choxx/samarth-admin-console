@@ -7,6 +7,7 @@ import {
     ListItemText,
     Typography,
 } from "@mui/material";
+import Avatar from '@mui/material/Avatar';
 import SettingsIcon from "@mui/icons-material/Settings";
 import { forwardRef } from "react";
 import { darkTheme, lightTheme } from "./themes";
@@ -32,26 +33,36 @@ import { darkTheme, lightTheme } from "./themes";
 //         </MenuItem>
 //     );
 // });
-const CustomUserMenu = () => (
-    <UserMenu>
+
+const CustomUserMenu = (props: any) => (
+    <UserMenu {...props} >
         <Logout />
-    </UserMenu>
+    </UserMenu >
 );
 
 const CustomAppBar = (props: any) => {
     return (
-        <AppBar
-            {...props}
-            elevation={1}
-            userMenu={<CustomUserMenu />}
-        >
-            <img id="samarth-logo" style={{ height: '3rem', padding: 5 }} src="https://himachal.nic.in/WriteReadData/l892s/16_l892s/samarth-logo-v9---lowres-22244626.png" />
-            <Typography sx={{ flex: 1 }} />
-            <ToggleThemeButton
-                lightTheme={lightTheme}
-                darkTheme={darkTheme}
-            />
-        </AppBar>
+        <>
+            <AppBar
+                {...props}
+                elevation={1}
+                userMenu={<CustomUserMenu />}
+            >
+                <img id="samarth-logo" style={{ height: '3rem', padding: 5 }} src="https://himachal.nic.in/WriteReadData/l892s/16_l892s/samarth-logo-v9---lowres-22244626.png" />
+                <Typography sx={{ flex: 1 }} />
+                <ToggleThemeButton
+                    lightTheme={lightTheme}
+                    darkTheme={darkTheme}
+                />
+            </AppBar>
+            <style>
+                {`
+                    .RaUserMenu-avatar {
+                        display: none !important;
+                    }
+                `}
+            </style>
+        </>
     );
 };
 

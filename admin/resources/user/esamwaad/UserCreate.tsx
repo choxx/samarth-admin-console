@@ -121,10 +121,15 @@ const UserCreate = (props: any) => {
       sort: { field: 'id', order: 'asc' },
       filter: { udise: value }
     });
-    if (res?.data?.length == 0)
-      return "Please enter a valid UDISE"
-    if (state.roles.includes("school"))
-      return "Cannot register more than one school for the same UDISE";
+    const schoolID = res?.data?.[0]?.id;
+    if (!schoolID)
+      return "Please enter a valid UDISE";
+
+    const userRes = await dataProvider.getUserByUdise("e_samwaad_user", { id: state.udise });
+    console.log(schoolID, userRes.data);
+
+    if (userRes?.data?.length)
+      return "Cannot register more than one school user for this UDISE"
     schoolIdRef.current = res.data[0].id
     return undefined;
   };

@@ -18,7 +18,7 @@ export const ChangePasswordButton = ({ record }: any) => {
 
     {
       onSuccess: (data: any) => {
-        notify(data?.data, { type: "success" });
+        notify(`Password changed successfully to ${resource == "shiksha_saathi_user" ? '1234abcd' : 'himachal12345'} `, { type: "success" });
       },
       onError: (error: any) => {
         notify(error.toString(), { type: "error" });
@@ -34,7 +34,7 @@ export const ChangePasswordButton = ({ record }: any) => {
       }}
       disabled={isLoading}
     >
-      Change Password
+      Reset Password
     </Button>
   );
 };

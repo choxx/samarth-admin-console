@@ -53,6 +53,7 @@ const UserCreate = (props: any) => {
       registration: {
         applicationId: "1ae074db-32f3-4714-a150-cc8a370eafd1",
         username: state.userName,
+        roles: [state?.designation]
       },
       user: {
         data: {
@@ -63,7 +64,7 @@ const UserCreate = (props: any) => {
             cluster: state.cluster,
             designation: state.designation,
             district: state.district,
-            geographic_level: state.geographicLevel,
+            geographic_level: scope,
           },
         },
         fullName: state.fullName,

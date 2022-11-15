@@ -37,12 +37,13 @@ const displayRoles = (a: any) => {
   return (
     <span
       style={{
-        padding: "7px 10px",
-        margin: "5px",
-        color: "white",
-        borderRadius: "25px",
-        backgroundColor: "#5a968b",
+        padding: "0.5rem 2rem",
+        margin: "0rem 1rem 0rem 0rem",
+        color: "#fff",
+        borderRadius: "0.5rem",
+        background: '#5a968b',
         display: "inline-block",
+        fontSize: '1rem'
       }}
     >
       {a}
@@ -182,8 +183,6 @@ const UserForm = () => {
   }, [designationName]);
   return (
     <>
-      <span>User Details</span>
-
       <TextInput
         onChange={(e) => setState({ ...state, userName: e.target.value })}
         source="username"
