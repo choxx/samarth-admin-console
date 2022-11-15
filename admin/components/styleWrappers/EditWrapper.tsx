@@ -17,6 +17,19 @@ const EditWrapper = (props: any) => {
           </SimpleForm>
         </div>
       </Edit>
+      <style>
+        {`
+          .RaEdit-main {
+            max-height: 80vh !important;
+          }
+
+          @media screen and (max-width: 480px) {
+           .RaEdit-main {
+              max-height: 100vh !important;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };

@@ -22,6 +22,7 @@ import {
   ReferenceInput,
   Toolbar,
   SaveButton,
+  useTheme,
 } from "react-admin";
 import { designationESamwaad, designationLevels } from "./designation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -249,6 +250,7 @@ const inputChoices = {
 const UserForm = (props: any) => {
   const { schoolId, setExtraState } = props;
   const record = useRecordContext();
+  const [theme] = useTheme();
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
     roles:
@@ -370,9 +372,9 @@ const UserForm = (props: any) => {
             <FunctionField
               render={(record: any) => {
                 return <div style={{ position: 'relative' }}>
-                  {!state.designationNew && state.designation && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
-                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Designation*</div>
-                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.designation}</p>
+                  {!state.designationNew && state.designation && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
+                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Designation*</div>
+                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.designation}</p>
                   </div>}
                   <SelectInput
                     value={state.designation}
@@ -391,9 +393,9 @@ const UserForm = (props: any) => {
             <FunctionField
               render={(record: any) => {
                 return <div style={{ position: 'relative' }}>
-                  {!state.accountStatusNew && state.accountStatus && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
-                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Account Status*</div>
-                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.accountStatus}</p>
+                  {!state.accountStatusNew && state.accountStatus && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
+                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Account Status*</div>
+                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.accountStatus}</p>
                   </div>}
                   <SelectInput
                     value={state.accountStatus}
@@ -411,9 +413,9 @@ const UserForm = (props: any) => {
             <FunctionField
               render={() => {
                 return <div style={{ position: 'relative' }}>
-                  {!state.modeOfEmploymentNew && state.modeOfEmployment && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: '#f0f0f0', width: '80%', height: '50%', }}>
-                    <div style={{ color: 'rgba(0,0,0,0.7)', fontSize: '0.7rem', margin: '5px 0px 0px 5px' }}>Mode of employment*</div>
-                    <p style={{ color: 'rgba(0,0,0,0.8)', fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.modeOfEmployment}</p>
+                  {!state.modeOfEmploymentNew && state.modeOfEmployment && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
+                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.7rem', margin: '5px 0px 0px 5px' }}>Mode of employment*</div>
+                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.modeOfEmployment}</p>
                   </div>}
                   <SelectInput
                     value={state.modeOfEmployment}

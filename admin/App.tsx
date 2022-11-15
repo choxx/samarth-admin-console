@@ -106,30 +106,44 @@ const App = () => {
   document.addEventListener("userFetched", prepareDataProvidersAgain, false);
 
   return (
-    <Admin
-      dataProvider={dataProvider}
-      theme={lightTheme}
-      layout={Layout}
-      authProvider={authProvider}
-      loginPage={Login}
-    >
-      {(permissions) =>
-        MenuItemsWithPermissionResolver(permissions).map((option, index) => {
-          // Need to fix type errors with Icon.
-          // const IconComponent = () => {
-          //   const Icon = null;
-          //   return <Icon />
-          // }
-          return (
-            <Resource
-              key={index}
-              name={option?.resource}
-              {...option?.props}
-            />
-          );
-        })
-      }
-    </Admin>
+    <>
+      <Admin
+        dataProvider={dataProvider}
+        layout={Layout}
+        theme={lightTheme}
+        authProvider={authProvider}
+        loginPage={Login}
+      >
+        {(permissions) =>
+          MenuItemsWithPermissionResolver(permissions).map((option, index) => {
+            // Need to fix type errors with Icon.
+            // const IconComponent = () => {
+            //   const Icon = null;
+            //   return <Icon />
+            // }
+            return (
+              <Resource
+                key={index}
+                name={option?.resource}
+                {...option?.props}
+              />
+            );
+          })
+        }
+      </Admin>
+      <style>
+        {`
+          body::-webkit-scrollbar {
+          display: none;
+          }
+
+          body {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+          }
+        `}
+      </style>
+    </>
   );
 };
 export default App;
