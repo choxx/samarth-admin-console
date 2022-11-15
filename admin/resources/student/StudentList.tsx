@@ -7,6 +7,7 @@ import {
   SelectArrayInput,
   ShowButton,
   useDataProvider,
+  useListContext,
 } from "react-admin";
 
 import {
@@ -88,8 +89,8 @@ const StudentList = () => {
       return [];
     }
     let grades = [];
-    for(let i=1; i<=12; i++){
-      grades[i] = { id : i , name : i};
+    for (let i = 1; i <= 12; i++) {
+      grades[i] = { id: i, name: i };
     }
     return grades;
   }, [selectedStatus, studentData]);
@@ -242,6 +243,7 @@ const StudentList = () => {
   const StudentPagination = () => (
     <Pagination rowsPerPageOptions={[10, 50, 75, 100]} />
   );
+
   return (
     <List filters={Filters} pagination={<StudentPagination />}>
       <Datagrid bulkActionButtons={false}>

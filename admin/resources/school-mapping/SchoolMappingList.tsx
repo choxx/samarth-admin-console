@@ -203,10 +203,10 @@ const SchoolMappingList = () => {
 
   return (
     <>
-      <div className="student_mapping_imp">
+      {/* <div className="student_mapping_imp">
         <Button label="Import" onClick={toggleModal} />
         <FormatSelectorModal open={open} handleOpen={toggleModal} />
-      </div>
+      </div> */}
       <ListDataGridWithPermissions
         listProps={{ filters: Filters }}
         dataGridProps={{ rowClick: "edit" }}

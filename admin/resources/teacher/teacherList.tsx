@@ -40,10 +40,23 @@ const ColoredChipField = (props: any) => {
 
   let data = statusChoices.find((elem) => elem.id === record[props.source]);
   return (
-    <Chip
-      style={{ backgroundColor: data?.color, color: "#FFF" }}
-      label={data?.name}
-    />
+    <span
+      style={{
+        padding: "3px 10px",
+        margin: "5px",
+        color: "#fff",
+        borderRadius: "0.5rem",
+        background: `${data?.color}`,
+        display: "inline-block",
+        fontWeight: 'bold'
+      }}
+    >
+      {data?.name}
+    </span>
+    // <Chip
+    //   style={{ backgroundColor: data?.color, color: "#FFF" }}
+    //   label={data?.name}
+    // />
   );
 };
 
