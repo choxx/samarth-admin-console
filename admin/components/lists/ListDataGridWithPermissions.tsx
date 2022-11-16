@@ -12,7 +12,7 @@ const ListDataGridWithPermissions = ({
   children,
   listProps,
   dataGridProps,
-  showExporter,
+  showExporter = false,
   withDelete = false,
 }: {
   children: any;
