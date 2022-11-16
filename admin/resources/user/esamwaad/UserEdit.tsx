@@ -42,7 +42,7 @@ const displayRoles = (a: any) => {
     return <span>-</span>;
   }
   const { roles } = registration;
-  return roles.map((role: any, index: number) => {
+  return roles?.map((role: any, index: number) => {
     return (
       <span
         style={{
