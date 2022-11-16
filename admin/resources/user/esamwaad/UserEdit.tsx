@@ -533,12 +533,6 @@ const UserEdit = () => {
               school: schoolId.current,
               udise: values?.data.udise,
             },
-            registrations: [
-              {
-                applicationId: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
-                roles: values?.roles,
-              },
-            ],
             designation: values.designation ? values.designation : extraState.designation,
             id: values.id,
             account_status: values.account_status ? values.account_status : extraState.accountStatus,
@@ -565,6 +559,7 @@ const UserEdit = () => {
               }
             }
           ]
+          console.log(_v)
           mutate(_v);
           notify(`User updated successfully`, { type: "success" });
         }}
