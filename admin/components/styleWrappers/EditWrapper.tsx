@@ -1,9 +1,10 @@
 import React from "react";
-import { Edit, SaveButton, SimpleForm, Toolbar } from "react-admin";
+import { DeleteWithConfirmButton, Edit, SaveButton, SimpleForm, Toolbar } from "react-admin";
 
 const EditToolbar = (props: any) => (
   <Toolbar  {...props}>
-      <SaveButton sx={{backgroundColor: "green"}} />
+    <SaveButton sx={{ backgroundColor: "green" }} />
+    {props.allowDelete && <DeleteWithConfirmButton sx={{ marginLeft: 5 }} />}
   </Toolbar>
 );
 const EditWrapper = (props: any) => {
@@ -11,7 +12,7 @@ const EditWrapper = (props: any) => {
     <div>
       <Edit className="edit_wrapper" {...props} mutationMode={"pessimistic"}>
         <div className="edit_wrapper_layout">
-          <SimpleForm toolbar={<EditToolbar/>}>
+          <SimpleForm toolbar={<EditToolbar allowDelete={props.allowDelete} />}>
             {props.children}
           </SimpleForm>
         </div>

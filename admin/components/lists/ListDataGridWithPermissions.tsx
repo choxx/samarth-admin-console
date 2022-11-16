@@ -12,11 +12,13 @@ const ListDataGridWithPermissions = ({
   children,
   listProps,
   dataGridProps,
+  showExporter,
   withDelete = false,
 }: {
   children: any;
   listProps?: any;
   dataGridProps?: any;
+  showExporter?: boolean;
   withDelete?: boolean;
 }) => {
   const { permissions } = usePermissions();
@@ -33,7 +35,7 @@ const ListDataGridWithPermissions = ({
   }
 
   return (
-    <List {...(listProps || {})} empty={false} exporter={false}>
+    <List {...(listProps || {})} empty={false} exporter={showExporter}>
       <Datagrid
         bulkActionButtons={withDelete} {...(_dataGridProps || {})}>
         {children}

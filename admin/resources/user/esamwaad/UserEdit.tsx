@@ -34,7 +34,7 @@ import { ChangePasswordButton } from "../ChangePasswordButton";
 
 const ApplicationId = "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da";
 
-export const DisplayRoles = (a: any) => {
+const displayRoles = (a: any) => {
   const registration = a.registrations?.find(
     (r: any) => r.applicationId === ApplicationId
   );
@@ -46,12 +46,13 @@ export const DisplayRoles = (a: any) => {
     return (
       <span
         style={{
-          padding: "7px 10px",
-          margin: "5px",
-          color: "white",
-          borderRadius: "25px",
-          backgroundColor: "#5a968b",
+          padding: "0.5rem 2rem",
+          margin: "0rem 1rem 1rem 0rem",
+          color: "#fff",
+          borderRadius: "0.5rem",
+          background: `${role == "Teacher" ? '#2A8E82' : role == "Principal" ? "#3E766D" : "#668E86"}`,
           display: "inline-block",
+          fontSize: '1rem'
         }}
         key={index}
       >
@@ -283,8 +284,17 @@ const UserForm = (props: any) => {
       sort: { field: "id", order: "asc" },
       filter: { udise: value },
     });
-    if (res?.data?.length == 0) return "Please enter a valid UDISE";
+    const schoolID = res?.data?.[0]?.id;
+    if (!schoolID)
+      return "Please enter a valid UDISE";
+
     schoolId.current = res.data[0].id;
+    if (record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles.includes("school")) {
+      const userRes = await dataProvider.getUserByUdise("e_samwaad_user", { id: state.udise });
+      // console.log(schoolID, userRes.data);
+      if (userRes?.data?.length)
+        return "Cannot register more than one school user for this UDISE"
+    }
     return undefined;
   };
 
@@ -355,15 +365,25 @@ const UserForm = (props: any) => {
         label="Mobile Phone"
         validate={inputConstraints.mobile}
       />
-
-      <SelectArrayInput
+      <FunctionField
+        label="Role"
+        render={() => {
+          return (
+            <span>
+              {displayRoles(record)}
+            </span>
+          )
+        }}
+      />
+      {/* <SelectArrayInput
         onChange={(e) => setState({ ...state, roles: e.target.value })}
         source="roles"
         defaultValue={record?.registrations?.[0].roles}
         choices={inputChoices.roles}
         label="Roles"
         validate={inputConstraints.role}
-      />
+
+      /> */}
 
       {state.roles &&
         (state.roles.includes("Principal") ||
@@ -381,6 +401,7 @@ const UserForm = (props: any) => {
                     onChange={(e: any) =>
                       setState({ ...state, designationNew: e.target.value })
                     }
+                    sx={{ width: '13.5rem !important', }}
                     source="designation"
                     label="Designation"
                     choices={inputChoices.designations}
@@ -402,6 +423,7 @@ const UserForm = (props: any) => {
                     onChange={(e: any) =>
                       setState({ ...state, accountStatusNew: e.target.value })
                     }
+                    sx={{ width: '13.5rem !important', }}
                     source="account_status"
                     label="Account Status"
                     choices={inputChoices.accountStatuses}
@@ -423,6 +445,7 @@ const UserForm = (props: any) => {
                       setState({ ...state, modeOfEmploymentNew: e.target.value })
                     }
                     source="mode_of_employment"
+                    sx={{ width: '13.5rem !important', }}
                     label="Mode of employment"
                     validate={inputConstraints.modeOfEmployment}
                     choices={inputChoices.employment}
@@ -537,6 +560,7 @@ const UserEdit = () => {
                 account_status: values.account_status ? values.account_status : extraState.accountStatus || "",
                 employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment || "",
                 designation: values.designation ? values.designation : extraState.designation || "",
+                cadre: values.designation ? values.designation : extraState.designation || "",
                 school_id: schoolId.current
               }
             }

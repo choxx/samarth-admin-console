@@ -7,7 +7,7 @@ import GradeAssessmentShow from "./GradeAssessmentShow";
 export default {
   list: GradeAssessmentList,
   edit: GradeAssessmentEdit,
-  show: GradeAssessmentShow,
+  // show: GradeAssessmentShow,
   permissions: {
     canEdit: ["Admin","State Admin"],
     // canDelete: ["Admin"],

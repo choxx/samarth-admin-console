@@ -28,7 +28,7 @@ const MenuOptions: any[] = [
   //   permissions: ["Admin", "State Admin"],
   // },
   {
-    name: "E Samwaad Users",
+    name: "e-Samwaad Users",
     resource: "e_samwaad_user",
     props: Esamwaad,
 
