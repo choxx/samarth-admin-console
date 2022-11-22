@@ -115,7 +115,7 @@ export const SchoolEdit = () => {
         {/* <ReferenceInput source="id" reference="location">
           <SelectInput disabled optionText={"id"} />
         </ReferenceInput> */}
-        <TextInput source="name" validate={inputConstraints.fullName} />
+        <TextInput source="name" validate={inputConstraints.fullName} disabled/>
         <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
         <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
         <NumberInput source="udise" disabled />

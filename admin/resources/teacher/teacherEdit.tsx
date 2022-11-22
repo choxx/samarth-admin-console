@@ -67,8 +67,8 @@ const ChangePasswordButton = ({ record }: any) => {
     <Button
       variant={"contained"}
       sx={{ marginTop: "10px" }}
-      // onClick={() => mutate()}
-      // disabled={isLoading}
+    // onClick={() => mutate()}
+    // disabled={isLoading}
     >
       <>Change Password</>
     </Button>
@@ -111,11 +111,11 @@ const TeacherEdit = ({ record }: any) => {
   return (
     <EditWrapper>
       <TextInput disabled source="id" />
-      <TextInput source="school.name" label="School" disabled/>
-      <TextInput source="school.udise" label="UDISE" disabled/>
+      <TextInput source="school.name" label="School" disabled />
+      <TextInput source="school.udise" label="UDISE" />
       <TextInput label="Mode of employment" source="employment" />
-      <TextInput label="Designation" source="designation" />
-      <SelectInput label="Account Status" source="account_status" choices={statusChoices}/>
+      <TextInput label="Designation" source="designation" disabled />
+      <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
     </EditWrapper>
   );
 };
