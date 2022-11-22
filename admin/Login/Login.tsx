@@ -3,7 +3,6 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import styles from './login.module.css';
-
 import {
   Avatar,
   Button,
@@ -68,12 +67,23 @@ const Login = () => {
 
   return (
     <div className={styles.container}>
+      <div className={styles.loginVector}>
+        <img src={'/loginBg.jpeg'} />
+        <div className={styles.logoContainer}>
+          <div className={styles.logoImages}>
+            <img src={'/hpLogo.png'} />
+            <img src={'/samarthLogo.png'} />
+            <img src={'/ssaLogo.png'} />
+          </div>
+          <p>e-Samwad/Shiksha Saathi</p>
+          <p>Admin Management Panel</p>
+        </div>
+      </div>
       <div className={styles.loginContainer}>
         <Form onSubmit={handleSubmit} noValidate>
-          <Card className={styles.loginCard} sx={{ borderRadius: 2, padding: '3.5rem 3rem', boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px' }}>
+          <Card className={styles.loginCard} sx={{ borderRadius: 2, padding: '3rem 0rem', boxShadow: 'none' }}>
             <div className={styles.cardHeader}>
-              Samarth Admin Login
-              <div className={styles.blueBar}></div>
+              Login
             </div>
 
             <Box sx={{ padding: "0 1em 1em 1em" }}>
@@ -85,7 +95,7 @@ const Login = () => {
                   disabled={loading}
                   validate={required()}
                   fullWidth
-                  variant="standard"
+                  variant="outlined"
                 />
               </Box>
               <Box >
@@ -95,7 +105,7 @@ const Login = () => {
                   type="password"
                   disabled={loading}
                   validate={required()}
-                  variant="standard"
+                  variant="outlined"
                   fullWidth
                 />
               </Box>
@@ -106,7 +116,7 @@ const Login = () => {
                 type="submit"
                 disabled={loading}
                 fullWidth
-                sx={{ background: "#2855b5", padding: '0.7rem' }}
+                sx={{ background: "#2855b5", padding: '0.7rem', marginTop: -2 }}
                 onMouseEnter={(e: any) => e.target.style.background = "#1c3a7a"}
                 onMouseLeave={(e: any) => e.target.style.background = "#2855b5"}
               >
@@ -117,9 +127,7 @@ const Login = () => {
           </Card>
         </Form>
       </div>
-      <div className={styles.loginVector}>
-        <img src="https://himachal.nic.in/WriteReadData/l892s/16_l892s/samarth-logo-v9---lowres-22244626.png" />
-      </div>
+
     </div>
 
   );
