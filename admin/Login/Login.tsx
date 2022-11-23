@@ -15,6 +15,7 @@ import {
   Form,
   required,
   TextInput,
+  PasswordInput,
   useTranslate,
   useLogin,
   useNotify,
@@ -99,14 +100,14 @@ const Login = () => {
                 />
               </Box>
               <Box >
-                <TextInput
+                <PasswordInput
                   source="password"
                   label={translate("ra.auth.password")}
-                  type="password"
                   disabled={loading}
                   validate={required()}
                   variant="outlined"
                   fullWidth
+
                 />
               </Box>
             </Box>

@@ -59,10 +59,10 @@ const dataProvider = {
         );
       }
       if (filter?.block) {
-        queryString.push(`data.roleData.block:${filter?.block}`);
+        queryString.push(`data.roleData.block:"${filter?.block}"`);
       }
       if (filter?.cluster) {
-        queryString.push(`data.roleData.cluster:${filter?.cluster}`);
+        queryString.push(`data.roleData.cluster:"${filter?.cluster}"`);
       }
       if (filter?.username) {
         queryString.push(
