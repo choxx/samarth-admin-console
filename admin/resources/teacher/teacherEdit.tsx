@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   TextInput,
   ReferenceInput,
@@ -9,9 +10,13 @@ import {
   Button,
   TextField,
   FunctionField,
+  FormDataConsumer,
+  Edit,
+  SimpleForm,
+  useRedirect,
 } from "react-admin";
 import { useMutation, useQuery } from "react-query";
-import EditWrapper from "../../components/styleWrappers/EditWrapper";
+import { clientGQL } from "../../api-clients/users-client";
 import { ChangePasswordTeacher } from "./ChangePasswordTeacher";
 const ApplicationId = "1ae074db-32f3-4714-a150-cc8a370eafd1";
 
@@ -108,15 +113,68 @@ const TeacherEdit = ({ record }: any) => {
       color: "#cbcbcb",
     },
   ];
+  const notify = useNotify();
+  const dataProvider = useDataProvider();
+  const redirect = useRedirect();
+  const schoolId = useRef();
+  const teacherId = useRef();
+
+  const udiseValidation = async (value: any) => {
+    const res = await dataProvider.getList('school', {
+      pagination: { perPage: 1, page: 1 },
+      sort: { field: 'id', order: 'asc' },
+      filter: { udise: value }
+    });
+
+    if (!res?.data?.[0]?.id)
+      return "Please enter a valid UDISE";
+    schoolId.current = res?.data?.[0]?.id;
+    return undefined;
+  };
+
+  const onError = (err: any) => {
+    if (err.toString() == 'Error: ra.notification.data_provider_error' && schoolId.current && teacherId.current) {
+      clientGQL(`
+      mutation {
+        update_teacher(where: {id: {_eq: ${teacherId.current}}}, _set: {school_id: ${schoolId.current}}) {
+          affected_rows
+        }
+      }
+      `)
+      notify(`Teacher edited successfully`, { type: 'success' });
+      redirect(`/teacher`);
+    } else {
+      notify(`Unable to update teacher.`, { type: 'error' });
+      redirect(`/teacher`);
+    }
+  }
+
+  const onSuccess = () => {
+    if (schoolId.current && teacherId.current)
+      clientGQL(`
+    mutation {
+      update_teacher(where: {id: {_eq: ${teacherId.current}}}, _set: {school_id: ${schoolId.current}}) {
+        affected_rows
+      }
+    }
+    `)
+    notify(`Teacher edited successfully`, { type: 'success' });
+    redirect(`/teacher`);
+  }
+
   return (
-    <EditWrapper>
-      <TextInput disabled source="id" />
-      <TextInput source="school.name" label="School" disabled />
-      <TextInput source="school.udise" label="UDISE" />
-      <TextInput label="Mode of employment" source="employment" />
-      <TextInput label="Designation" source="designation" disabled />
-      <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
-    </EditWrapper>
+    <Edit mutationOptions={{ onError, onSuccess }} mutationMode='pessimistic'>
+      <SimpleForm>
+        <TextInput disabled source="id" />
+        <TextInput source="school.name" label="School" disabled />
+        <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} />
+        {/* <TextInput source="school.udise" label="UDISE" validate={ } onChange={e => handleUdiseChange(Number(e.target.value))} /> */}
+        <SelectInput label="Mode of employment" source="employment" choices={['Contractual', 'Permanent'].map(el => { return { id: el, name: el } })} />
+        <TextInput label="Designation" source="designation" disabled />
+        <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
+        <FunctionField render={(record: any) => { teacherId.current = record.id; return <></> }} />
+      </SimpleForm>
+    </Edit>
   );
 };
 export default TeacherEdit;
