@@ -112,6 +112,13 @@ export const lightTheme = {
           }
         }
       }
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        gutters: {
+          margin: '0.5rem 0rem'
+        }
+      }
     }
   },
 };

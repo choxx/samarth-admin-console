@@ -7,7 +7,9 @@ import {
   SimpleForm,
   TextInput,
   useDataProvider,
+  useNotify,
   useRecordContext,
+  useRedirect,
 } from "react-admin";
 import * as _ from "lodash";
 import { useQuery } from "react-query";
@@ -58,9 +60,15 @@ const LocationCreate = () => {
       };
     });
   }, [districtData]);
+  const notify = useNotify();
+  const redirect = useRedirect();
 
+  const onSuccess = () => {
+    notify(`Location added successfully`);
+    redirect(`/location`);
+  };
   return (
-    <Create>
+    <Create mutationOptions={{ onSuccess }}>
       <SimpleForm>
         <SelectInput
           label="District"
@@ -76,8 +84,8 @@ const LocationCreate = () => {
           choices={districts}
           validate={[required()]}
         />
-        <TextInput source="block" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Block with appropriate name with aplhabets only.")]} />
-        <TextInput source="cluster" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Cluster with appropriate name with aplhabets only.")]} />
+        <TextInput source="block" validate={[required(), regex(/^[A-Za-z][A-Za-z ]*$/, "Please Fill the Block with appropriate name with aplhabets only.")]} />
+        <TextInput source="cluster" validate={[required(), regex(/^[A-Za-z][A-Za-z ]*$/, "Please Fill the Cluster with appropriate name with aplhabets only.")]} />
       </SimpleForm>
     </Create>
   );
