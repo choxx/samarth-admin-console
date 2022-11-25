@@ -10,11 +10,12 @@ import {
   useDataProvider,
   useRecordContext,
   SelectInput,
+  SavedQueriesList,
 } from "react-admin";
 
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as _ from "lodash";
 import { ListDataGridWithPermissions } from "../../../components/lists";
 import { ChangePasswordButton } from "../ChangePasswordButton";
@@ -132,7 +133,6 @@ const UserList = () => {
       };
     });
   }, [districtData]);
-  console.log(districts)
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];
@@ -186,16 +186,14 @@ const UserList = () => {
   }, [selectedBlock, districtData]);
   const rolesChoices: any = designationLevels;
   const Filters = [
-    <TextInput source="username" alwaysOn key={"search"} />,
+    <TextInput source="username" alwaysOn />,
     <SelectInput
       label="Role"
       source="shikshaRoles"
       choices={rolesChoices}
-      key={"role"}
     />,
     <SelectInput
       label="District"
-      key={"district"}
       onChange={(e: any) => {
         setSelectedDistrict(e.target.value);
         setSelectedBlock(null);
@@ -211,20 +209,34 @@ const UserList = () => {
         setSelectedBlock(e.target.value);
         setSelectedCluster(null);
       }}
-      key="block"
       value={selectedBlock}
       source="block"
       choices={blocks}
     />,
-    <SelectInput
-      label="Cluster"
-      onChange={(e) => setSelectedCluster(e.target.value)}
-      value={selectedCluster}
-      source="cluster"
-      choices={clusters}
-      key="cluster"
-    />,
+    // <SelectInput
+    //   label="Cluster"
+    //   onChange={(e) => setSelectedCluster(e.target.value)}
+    //   value={selectedCluster}
+    //   source="cluster"
+    //   choices={clusters}
+    // />,
   ];
+
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    return (() => clearInterval(a))
+  }, [])
+
+
 
   return (
     <ListDataGridWithPermissions
