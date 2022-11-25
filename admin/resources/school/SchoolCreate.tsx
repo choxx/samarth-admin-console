@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BooleanInput,
   Create,
@@ -10,6 +10,8 @@ import {
   SelectInput,
   SimpleForm,
   TextInput,
+  useNotify,
+  useRedirect,
 } from "react-admin";
 import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 
@@ -27,11 +29,17 @@ const SchoolCreate = () => {
     type: required("Please select type"),
     coord: [required("Please enter a valid co-ordinate"), regex(/^[1-9]\d*(\.\d+)?$/, "Please enter a valid co-ordinate")]
   }
+  const notify = useNotify();
+  const redirect = useRedirect();
 
+  const onSuccess = () => {
+    notify(`School added successfully`);
+    redirect(`/school`);
+  };
   const { districts, blocks, clusters } = getLocationDetails();
 
   return (
-    <Create>
+    <Create mutationOptions={{ onSuccess }}>
       <SimpleForm>
         <TextInput source="name" validate={inputConstraints.fullName} />
         <NumberInput source="udise" validate={required("Please enter a valid UDISE")} />
@@ -43,7 +51,7 @@ const SchoolCreate = () => {
         <BooleanInput source="is_active" />
         <TextInput source="latitude" validate={inputConstraints.coord} />
         <TextInput source="longitude" validate={inputConstraints.coord} />
-        <TextInput source="enroll_count" validate={[required("Please enter a valid enroll count"),regex(/^[0-9]\d*$/,"Only Integer Value is allowed."),maxLength(10,"Unable to Enroll this many students.")]}/>
+        <TextInput source="enroll_count" validate={[required("Please enter a valid enroll count"), regex(/^[0-9]\d*$/, "Only Integer Value is allowed."), maxLength(10, "Unable to Enroll this many students.")]} />
       </SimpleForm>
     </Create>
   );

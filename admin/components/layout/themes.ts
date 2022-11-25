@@ -76,7 +76,9 @@ export const lightTheme = {
       styleOverrides: {
         root: {
           "& .RaLayout-content": {
-            background: '#f1f5f9'
+            background: '#f1f5f9',
+            maxHeight: '93vh',
+            overflow: 'scroll'
           }
         }
       }
@@ -108,6 +110,13 @@ export const lightTheme = {
             maxHeight: '90vh',
             overflowY: 'scroll'
           }
+        }
+      }
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        gutters: {
+          margin: '0.5rem 0rem'
         }
       }
     }
@@ -190,7 +199,9 @@ export const darkTheme = {
       styleOverrides: {
         root: {
           "& .RaLayout-content": {
-            background: '#171717'
+            background: '#171717',
+            maxHeight: '93vh',
+            overflowY: 'scroll'
           }
         }
       }
@@ -223,7 +234,7 @@ export const darkTheme = {
       styleOverrides: {
         root: {
           "& .RaEdit-main": {
-            maxHeight: '90vh',
+            maxHeight: '93vh',
             overflowY: 'scroll'
           }
         }

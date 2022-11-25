@@ -1,4 +1,6 @@
 import {
+  ExportButton,
+  FilterButton,
   Labeled,
   NumberInput,
   Pagination,
@@ -6,6 +8,7 @@ import {
   SearchInput,
   SelectArrayInput,
   ShowButton,
+  TopToolbar,
   useDataProvider,
   useListContext,
 } from "react-admin";
@@ -148,7 +151,7 @@ const StudentList = () => {
   const Filters = [
     <NumberInput label="ID" source="id" alwaysOn />,
     <TextInput label="UDISE" source="school#udise" key="search" />,
-    <TextInput label="School Name" source="school#name" key={"search"} />,
+    <TextInput label="School Name" source="school#name@_ilike" key={"search"} />,
     <SelectArrayInput
       label="Grade"
       onChange={(e) => {
@@ -244,8 +247,16 @@ const StudentList = () => {
     <Pagination rowsPerPageOptions={[10, 50, 75, 100]} />
   );
 
+
+  const ListActions = () => (
+    <TopToolbar>
+      <FilterButton />
+      <ExportButton />
+    </TopToolbar>
+  );
+
   return (
-    <List filters={Filters} pagination={<StudentPagination />}>
+    <List filters={Filters} pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="name" />

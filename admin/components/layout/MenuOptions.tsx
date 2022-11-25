@@ -18,7 +18,6 @@ const MenuOptions: any[] = [
   //   resource: "student",
   //   props: student,
   //   permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
-  //   permissions: ["Admin"],
   // },
   // {
   //   name: "Teacher",

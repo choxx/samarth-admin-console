@@ -35,13 +35,24 @@ const ListDataGridWithPermissions = ({
   }
 
   return (
-    <List {...(listProps || {})} empty={false} exporter={showExporter}>
-      <Datagrid
-        bulkActionButtons={withDelete} {...(_dataGridProps || {})}>
-        {children}
-        {ResourceWithPermission?.resourcePermissions?.canEdit && <EditButtonWrapper />}
-      </Datagrid>
-    </List>
+    <>
+      {
+        showExporter ? <List {...(listProps || {})} empty={false} >
+          <Datagrid
+            bulkActionButtons={withDelete} {...(_dataGridProps || {})}>
+            {children}
+            {ResourceWithPermission?.resourcePermissions?.canEdit && <EditButtonWrapper />}
+          </Datagrid>
+        </List> : <List {...(listProps || {})} empty={false} exporter={false}>
+          <Datagrid
+            bulkActionButtons={withDelete} {...(_dataGridProps || {})}>
+            {children}
+            {ResourceWithPermission?.resourcePermissions?.canEdit && <EditButtonWrapper />}
+          </Datagrid>
+        </List>
+      }
+
+    </>
   );
 };
 export default ListDataGridWithPermissions;
