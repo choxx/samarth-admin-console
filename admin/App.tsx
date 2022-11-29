@@ -85,7 +85,6 @@ const App = () => {
   if (!dataProvider) return <p>Loading...</p>;
 
   const prepareDataProvidersAgain = function (e: any) {
-    if (localStorage.getItem("userData")) return;
     const newSession: any = {
       user: {
         name: null,
@@ -104,6 +103,7 @@ const App = () => {
 
   // Preparing data providers again as soon as token is retrieved.
   document.addEventListener("userFetched", prepareDataProvidersAgain, false);
+  document.addEventListener("refreshUserToken", prepareDataProvidersAgain, false);
 
   return (
     <>

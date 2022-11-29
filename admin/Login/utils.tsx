@@ -12,30 +12,19 @@ export const getToken = async (userName: string, password: string) => {
   if (response?.data?.result?.data) {
 
     // Storing orinal setItem prototype.
-    const originalSetItem = localStorage.setItem;
+    // const originalSetItem = localStorage.setItem;
 
     // Setting the userData in storage before modifying function calls.
     localStorage.setItem(
       "userData",
       JSON.stringify(response?.data?.result?.data)
     );
+    const event: any = new Event('userFetched');
 
-    // Creating a custom event based method to override setItem.
-    localStorage.setItem = function (key, value) {
-      const event: any = new Event('userFetched');
+    event.value = response?.data?.result?.data?.user?.token;
+    event.key = 'jwtToken';
 
-      event.value = value;
-      event.key = key;
-
-      document.dispatchEvent(event);
-      originalSetItem.apply(this, [key, value]);
-    };
-
-    // Setting token to be used in prepareDataProviders
-    localStorage.setItem(
-      "jwtToken",
-      response?.data?.result?.data?.user?.token
-    );
+    document.dispatchEvent(event);
   }
   return response;
 };
@@ -50,4 +39,35 @@ export const loginPreCheck = async (userName: string, password: string) => {
 
   if (response?.data.responseCode === "OK") return true;
   return false;
+};
+
+export const RefreshToken = async () => {
+  const userData = JSON.parse(localStorage.getItem("userData") as string);
+  const data = {
+    token: userData?.user?.token,
+    refreshToken: userData?.user?.refreshToken
+  }
+  if (data.token && data.refreshToken) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/refresh-token`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        "x-application-id": '77638847-db34-4331-b369-5768fdfededd'
+      },
+      body: JSON.stringify(data)
+    });
+    let refreshData = await res.json();
+    userData.user.token = refreshData.result.user.token;
+    userData.user.refreshToken = refreshData.result.user.refreshToken;
+
+    const event: any = new Event('refreshUserToken');
+
+    event.value = refreshData.result.user.token;
+    event.key = 'jwtToken';
+
+    document.dispatchEvent(event);
+
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }
 };

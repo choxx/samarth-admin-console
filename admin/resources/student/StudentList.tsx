@@ -24,7 +24,7 @@ import {
   SelectInput,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { isBoolean } from "lodash";
@@ -254,6 +254,19 @@ const StudentList = () => {
       <ExportButton />
     </TopToolbar>
   );
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    return (() => clearInterval(a))
+  }, [])
 
   return (
     <List filters={Filters} pagination={<StudentPagination />} actions={<ListActions />}>

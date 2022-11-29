@@ -1,6 +1,7 @@
 import { TextField, ReferenceField, useRecordContext } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { Chip } from "@mui/material";
+import { useEffect } from "react";
 
 const statusChoices = [
   {
@@ -61,6 +62,20 @@ const ColoredChipField = (props: any) => {
 };
 
 const TeacherList = () => {
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    return (() => clearInterval(a))
+  }, [])
+
   return (
     <ListDataGridWithPermissions dataGridProps={{ rowClick: "show" }}>
       <TextField source="id" />

@@ -7,7 +7,7 @@ import {
   useListContext,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { ListDataGridWithPermissions } from "../../components/lists";
@@ -60,7 +60,7 @@ const LocationList = () => {
     if (!districtData) {
       return [];
     }
-    if(!selectedDistrict){
+    if (!selectedDistrict) {
       return _.uniqBy(
         districtData,
         "block"
@@ -86,7 +86,7 @@ const LocationList = () => {
     if (!districtData) {
       return [];
     }
-    if(!selectedBlock){
+    if (!selectedBlock) {
       return _.uniqBy(
         districtData,
         "cluster"
@@ -121,24 +121,38 @@ const LocationList = () => {
       source="district"
       choices={districts}
     />,
-      <SelectInput
-        label="Block"
-        onChange={(e) => {
-          setSelectedBlock(e.target.value);
-          setSelectedCluster(null);
-        }}
-        value={selectedBlock}
-        source="block"
-        choices={blocks}
-      />,
-      <SelectInput
-        label="Cluster"
-        onChange={(e) => setSelectedCluster(e.target.value)}
-        value={selectedCluster}
-        source="cluster"
-        choices={clusters}
-      />
+    <SelectInput
+      label="Block"
+      onChange={(e) => {
+        setSelectedBlock(e.target.value);
+        setSelectedCluster(null);
+      }}
+      value={selectedBlock}
+      source="block"
+      choices={blocks}
+    />,
+    <SelectInput
+      label="Cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="cluster"
+      choices={clusters}
+    />
   ];
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    return (() => clearInterval(a))
+  }, [])
+
   return (
     <ListDataGridWithPermissions
       listProps={{ filters: Filters, exporter: false }}
