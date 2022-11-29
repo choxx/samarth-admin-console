@@ -1,5 +1,5 @@
 import { AuthProvider } from "react-admin";
-import { getToken } from "./Login/utils";
+import { getToken, RefreshToken } from "./Login/utils";
 
 const AuthApplicationID = "77638847-db34-4331-b369-5768fdfededd";
 
@@ -15,8 +15,10 @@ const authProvider: AuthProvider = {
     console.log("login errror ");
     return Promise.resolve();
   },
-  checkAuth: () =>
-    localStorage.getItem("userData") ? Promise.resolve() : Promise.reject(),
+  checkAuth: () => {
+    RefreshToken();
+    return localStorage.getItem("userData") ? Promise.resolve() : Promise.reject()
+  },
   getPermissions: () => {
     if (localStorage.getItem("userData")) {
       const userData = JSON.parse(localStorage.getItem("userData") as string);

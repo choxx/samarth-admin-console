@@ -9,6 +9,7 @@ import { WithMyDistricts } from "../../components/withAccesses";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { BooleanField } from "react-admin";
 import { getLocationDetails } from "../../utils/LocationDetailsHelper";
+import { useEffect } from "react";
 
 const SchoolList = () => {
   const typeChoice = [
@@ -37,6 +38,21 @@ const SchoolList = () => {
     <SelectInput label="Block" source="location#block" choices={blocks} />,
     <SelectInput label="Cluster" source="location#cluster" choices={clusters} />,
   ];
+
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    return (() => clearInterval(a))
+  }, [])
+
   return (
     <WithMyDistricts>
       {(districts: any) => {

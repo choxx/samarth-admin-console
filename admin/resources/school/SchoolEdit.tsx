@@ -10,6 +10,11 @@ import {
   required,
   regex,
   FunctionField,
+  Toolbar,
+  SaveButton,
+  useNotify,
+  useRedirect,
+  FormDataConsumer,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
 import { useMemo, useState } from "react";
@@ -17,9 +22,13 @@ import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import EditWrapper from "../../components/styleWrappers/EditWrapper";
+import { clientGQL } from "../../api-clients/users-client";
 
 export const SchoolEdit = () => {
   const location = useLocation();
+  const notify = useNotify();
+  const redirect = useRedirect();
+  const [schoolId, setSchoolId] = useState("");
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
@@ -110,12 +119,29 @@ export const SchoolEdit = () => {
 
   const { districts, blocks, clusters } = getLocationDetails();
 
+  const EditToolbar = (props: any) => (
+    <Toolbar  {...props}>
+      <SaveButton sx={{ backgroundColor: "green" }} />
+    </Toolbar>
+  );
+  const onSuccess = () => {
+    clientGQL(`
+    mutation {
+      delete_school_cache(where: {school_id: {_eq: ${schoolId}}}) {
+        affected_rows
+      }
+    }    
+    `)
+    notify("School updated successfully", { type: 'success' });
+    redirect("/school");
+  }
   return (
-    <EditWrapper>
+    <Edit mutationOptions={{ onSuccess }} mutationMode={'pessimistic'}>
+      <SimpleForm toolbar={<EditToolbar />}>
         {/* <ReferenceInput source="id" reference="location">
           <SelectInput disabled optionText={"id"} />
         </ReferenceInput> */}
-        <TextInput source="name" validate={inputConstraints.fullName} disabled/>
+        <TextInput source="name" validate={inputConstraints.fullName} disabled />
         <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
         <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
         <NumberInput source="udise" disabled />
@@ -158,7 +184,14 @@ export const SchoolEdit = () => {
           choices={clusters}
           disabled
         />
-      </EditWrapper>
+        <FormDataConsumer>
+          {({ formData }) => {
+            setSchoolId(formData.id);
+            return <></>
+          }}
+        </FormDataConsumer>
+      </SimpleForm>
+    </Edit>
   );
 };
 export default SchoolEdit;
