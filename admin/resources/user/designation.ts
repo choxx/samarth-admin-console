@@ -96,7 +96,7 @@ export const getLowerDesignationsChoices = (_user: any) => {
     return [];
   }
 
-  const tokenDetails = parseJwt(localStorage.getItem('jwtToken'));
+  const tokenDetails = parseJwt(JSON.parse(localStorage.getItem('userData') as string).user.token);
   // const level = user?.data?.roleData?.geographic_level;
   const level = user?.registrations?.filter((el: any) => el.applicationId == tokenDetails.applicationId)?.[0]?.data?.roleData || user?.data?.roleData;
   if (!level) {
