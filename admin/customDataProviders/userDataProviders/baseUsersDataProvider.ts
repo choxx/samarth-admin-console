@@ -98,7 +98,7 @@ const dataProvider = {
 
     if (response?.data?.result) {
       return {
-        data: response?.data?.result?.users[0],
+        data: response?.data?.result?.users?.filter((el: any) => el.id == id)?.[0],
       };
     }
     return response;
