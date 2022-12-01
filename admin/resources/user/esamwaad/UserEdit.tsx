@@ -23,6 +23,7 @@ import {
   Toolbar,
   SaveButton,
   useTheme,
+  FormDataConsumer,
 } from "react-admin";
 import { designationESamwaad, designationLevels } from "./designation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -252,6 +253,7 @@ const UserForm = (props: any) => {
   const { schoolId, setExtraState } = props;
   const record = useRecordContext();
   const [theme] = useTheme();
+  const [reRender, setReRender] = useState(false);
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
     roles:
@@ -274,6 +276,8 @@ const UserForm = (props: any) => {
         schoolId.current = res.data[0].school_id;
         setState({ ...state, designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
         setExtraState({ designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
+        setReRender(true);
+        setTimeout(() => setReRender(false), 100)
       }
     })
   }, [])
@@ -389,70 +393,44 @@ const UserForm = (props: any) => {
         (state.roles.includes("Principal") ||
           state.roles.includes("Teacher")) && (
           <>
-            <FunctionField
-              render={(record: any) => {
-                return <div style={{ position: 'relative' }}>
-                  {!state.designationNew && state.designation && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
-                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Designation*</div>
-                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.designation}</p>
-                  </div>}
-                  <SelectInput
-                    value={state.designation}
-                    onChange={(e: any) =>
-                      setState({ ...state, designationNew: e.target.value })
-                    }
-                    sx={{ width: '13.5rem !important', }}
-                    source="designation"
-                    label="Designation"
-                    choices={inputChoices.designations}
-                    validate={inputConstraints.designation}
-                  />
-                </div>
-              }}
+            {!reRender && <SelectInput
+              value={state.designation}
+              onChange={(e: any) =>
+                setState({ ...state, designationNew: e.target.value })
+              }
+              sx={{ width: '13.5rem !important', }}
+              source="data.designation"
+              label="Designation"
+              choices={inputChoices.designations}
+              validate={inputConstraints.designation}
             />
+            }
 
-            <FunctionField
-              render={(record: any) => {
-                return <div style={{ position: 'relative' }}>
-                  {!state.accountStatusNew && state.accountStatus && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
-                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.8rem', margin: '5px 0px 0px 5px' }}>Account Status*</div>
-                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.accountStatus}</p>
-                  </div>}
-                  <SelectInput
-                    value={state.accountStatus}
-                    onChange={(e: any) =>
-                      setState({ ...state, accountStatusNew: e.target.value })
-                    }
-                    sx={{ width: '13.5rem !important', }}
-                    source="account_status"
-                    label="Account Status"
-                    choices={inputChoices.accountStatuses}
-                    validate={inputConstraints.accountStatus}
-                  />
-                </div>
-              }}
-            />
-            <FunctionField
-              render={() => {
-                return <div style={{ position: 'relative' }}>
-                  {!state.modeOfEmploymentNew && state.modeOfEmployment && <div style={{ position: 'absolute', zIndex: 999, top: 9, left: 5, background: `${theme?.palette?.mode == 'dark' ? '#1d1d1d' : '#f5f5f5'}`, width: '80%', height: '50%', }}>
-                    <div style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.7)'}`, fontSize: '0.7rem', margin: '5px 0px 0px 5px' }}>Mode of employment*</div>
-                    <p style={{ color: `${theme?.palette?.mode == 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)'}`, fontSize: 16, margin: '0px 0px 0px 4px' }}>{state.modeOfEmployment}</p>
-                  </div>}
-                  <SelectInput
-                    value={state.modeOfEmployment}
-                    onChange={(e: any) =>
-                      setState({ ...state, modeOfEmploymentNew: e.target.value })
-                    }
-                    source="mode_of_employment"
-                    sx={{ width: '13.5rem !important', }}
-                    label="Mode of employment"
-                    validate={inputConstraints.modeOfEmployment}
-                    choices={inputChoices.employment}
-                  />
-                </div>
-              }}
-            />
+            {!reRender && <SelectInput
+              value={state.accountStatus}
+              onChange={(e: any) =>
+                setState({ ...state, accountStatusNew: e.target.value })
+              }
+              sx={{ width: '13.5rem !important', }}
+              source="data.accountStatus"
+              label="Account Status"
+              choices={inputChoices.accountStatuses}
+              validate={inputConstraints.accountStatus}
+            />}
+
+
+            {!reRender && <SelectInput
+              value={state.modeOfEmployment}
+              onChange={(e: any) =>
+                setState({ ...state, modeOfEmploymentNew: e.target.value })
+              }
+              source="data.modeOfEmployment"
+              sx={{ width: '13.5rem !important', }}
+              label="Mode of employment"
+              validate={inputConstraints.modeOfEmployment}
+              choices={inputChoices.employment}
+            />}
+
           </>
         )}
       <TextInput
@@ -462,6 +440,22 @@ const UserForm = (props: any) => {
         validate={inputConstraints.udise}
         defaultValue={record?.data?.udise}
       />
+
+      {reRender && <FormDataConsumer>
+        {({ formData }) => {
+          if (state.designation) {
+            formData.data.designation = state.designation;
+          }
+          if (state.accountStatus) {
+            formData.data.accountStatus = state.accountStatus;
+          }
+          if (state.modeOfEmployment) {
+            formData.data.modeOfEmployment = state.modeOfEmployment;
+          }
+          console.log("FD", formData)
+          return <></>
+        }}
+      </FormDataConsumer>}
 
       <ChangePasswordButton record={record}></ChangePasswordButton>
       <br></br>
@@ -533,10 +527,10 @@ const UserEdit = () => {
               school: schoolId.current,
               udise: values?.data.udise,
             },
-            designation: values.designation ? values.designation : extraState.designation,
+            designation: values.data.designation ? values.data.designation : extraState.designation,
             id: values.id,
-            account_status: values.account_status ? values.account_status : extraState.accountStatus,
-            employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment,
+            account_status: values.data.accountStatus ? values.data.accountStatus : extraState.accountStatus,
+            employment: values.data.modeOfEmployment ? values.data.modeOfEmployment : extraState.modeOfEmployment,
           };
           _v["gql"] = {
             designation: _v.designation ? _v.designation : extraState.designation,
@@ -551,10 +545,10 @@ const UserEdit = () => {
               mutation: "updateTeacherDesignationSchoolStatusAndEmployment",
               payload: {
                 user_id: values.id,
-                account_status: values.account_status ? values.account_status : extraState.accountStatus || "",
-                employment: values.mode_of_employment ? values.mode_of_employment : extraState.modeOfEmployment || "",
-                designation: values.designation ? values.designation : extraState.designation || "",
-                cadre: values.designation ? values.designation : extraState.designation || "",
+                account_status: values.data.accountStatus ? values.data.accountStatus : extraState.accountStatus || "",
+                employment: values.data.modeOfEmployment ? values.data.modeOfEmployment : extraState.modeOfEmployment || "",
+                designation: values.data.designation ? values.data.designation : extraState.designation || "",
+                cadre: values.data.designation ? values.data.designation : extraState.designation || "",
                 school_id: schoolId.current
               }
             }
