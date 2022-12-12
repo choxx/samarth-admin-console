@@ -7,7 +7,7 @@ import TeacherShow from "./teacherShow";
 export default {
   list: TeacherList,
   edit: TeacherEdit,
-  show: TeacherShow,
+  // show: TeacherShow,
   icon: SchoolIcon,
   permissions: {
     canEdit: ["Admin"],

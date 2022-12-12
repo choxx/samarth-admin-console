@@ -19,7 +19,7 @@ const ListDataGridWithPermissions = ({
   listProps?: any;
   dataGridProps?: any;
   showExporter?: boolean;
-  withDelete?: boolean;
+  withDelete?: any;
 }) => {
   const { permissions } = usePermissions();
   const resource = useResourceContext();
@@ -33,7 +33,6 @@ const ListDataGridWithPermissions = ({
   if (!ResourceWithPermission?.resourcePermissions?.canDelete) {
     _dataGridProps.bulkActionButtons = null;
   }
-
   return (
     <>
       {
