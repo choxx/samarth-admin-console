@@ -7,7 +7,7 @@ import StudentShow from "./StudentShow";
 export default {
   list: StudentList,
   edit: StudentEdit,
-  show: StudentShow,
+  // show: StudentShow,
   permissions: {
     canEdit: ["Admin","State Admin","District Admin", "Block Admin"],
     // canDelete: ["Admin"],

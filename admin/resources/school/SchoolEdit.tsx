@@ -17,7 +17,7 @@ import {
   FormDataConsumer,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { getLocationDetails } from "../../utils/LocationDetailsHelper";
@@ -29,6 +29,8 @@ export const SchoolEdit = () => {
   const notify = useNotify();
   const redirect = useRedirect();
   const [schoolId, setSchoolId] = useState("");
+  const locationId = useRef();
+  const [locationDetails, setLocationDetails] = useState<any>({});
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
@@ -55,6 +57,31 @@ export const SchoolEdit = () => {
       filter: {},
     })
   );
+
+  const handleLocationChange = async (value: string) => {
+    if (!value) return "Pleae select an option";
+    let res: any = await clientGQL(`
+    query {
+      location(where: {district: {_eq: "${locationDetails.district}"}, block: {_eq: "${locationDetails.block}"}, cluster: {_eq: "${locationDetails.cluster}"}}) {
+        id,
+        district,
+        block,
+        cluster
+      }
+    }    
+  `)
+    res = await res.json();
+    if (res?.data?.location?.[0]?.id) {
+      locationId.current = res?.data?.location?.[0]?.id;
+      console.log(locationId.current)
+      return undefined;
+    }
+    else {
+      locationId.current = undefined;
+      console.log(locationId.current)
+      return "Not a valid location combination"
+    }
+  }
 
   // const districtData = useMemo(() => {
   //   return _districtData?.data;
@@ -110,9 +137,9 @@ export const SchoolEdit = () => {
     fullName: [required("Please provide fullname"), regex(/^[a-zA-Z0-9 ]*$/, "Name can only contain alphabets, numbers and spaces")],
     // mobile: [required("Please provide mobile number"), number("Mobile must be numeric"), minLength(10), maxLength(10)],
     session: required("Please select session"),
-    district: required("Please select a district"),
-    block: required("Please select a block"),
-    cluster: required("Please select a cluster"),
+    district: handleLocationChange,
+    block: handleLocationChange,
+    cluster: handleLocationChange,
     type: required("Please select type"),
     coord: [required("Please enter a valid co-ordinate"), regex(/^[1-9]\d*(\.\d+)?$/, "Please enter a valid co-ordinate")]
   }
@@ -132,23 +159,51 @@ export const SchoolEdit = () => {
       }
     }    
     `)
+    if (schoolId && locationId.current)
+      clientGQL(`
+      mutation {
+        update_school(where: {id: {_eq: ${schoolId}}}, _set: {location_id: ${locationId.current}}) {
+          affected_rows
+        }
+      }
+      `)
     notify("School updated successfully", { type: 'success' });
     redirect("/school");
   }
+
+  const onError = (err: any) => {
+    if (err.toString() == 'Error: ra.notification.data_provider_error' && schoolId && locationId.current) {
+      clientGQL(`
+      mutation {
+        update_school(where: {id: {_eq: ${schoolId}}}, _set: {location_id: ${locationId.current}}) {
+          affected_rows
+        }
+      }
+      `)
+      notify(`School updated successfully`, { type: 'success' });
+      redirect(`/school`);
+    } else {
+      notify(`Unable to update school: ${err.toString}`, { type: 'error' });
+      redirect(`/school`);
+    }
+  }
+
+
+
   return (
-    <Edit mutationOptions={{ onSuccess }} mutationMode={'pessimistic'}>
+    <Edit mutationOptions={{ onSuccess, onError }} mutationMode={'pessimistic'}>
       <SimpleForm toolbar={<EditToolbar />}>
         {/* <ReferenceInput source="id" reference="location">
           <SelectInput disabled optionText={"id"} />
         </ReferenceInput> */}
-        <TextInput source="name" validate={inputConstraints.fullName} disabled />
+        <TextInput source="name" validate={inputConstraints.fullName} />
         <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
         <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
         <NumberInput source="udise" disabled />
-        <NumberInput source="enroll_count" disabled />
+        <NumberInput source="enroll_count" />
         <BooleanInput source="is_active" />
-        <TextInput source="latitude" validate={inputConstraints.coord} />
-        <TextInput source="longitude" validate={inputConstraints.coord} />
+        <TextInput source="latitude" />
+        <TextInput source="longitude" />
         <SelectInput
           label="District"
           key={"district"}
@@ -161,7 +216,6 @@ export const SchoolEdit = () => {
           source="location.district"
           choices={districts}
           validate={inputConstraints.district}
-          disabled
         />
         <SelectInput
           label="Block"
@@ -173,7 +227,6 @@ export const SchoolEdit = () => {
           source="location.block"
           choices={blocks}
           validate={inputConstraints.block}
-          disabled
         />
         <SelectInput
           label="Cluster"
@@ -182,11 +235,13 @@ export const SchoolEdit = () => {
           source="location.cluster"
           validate={inputConstraints.cluster}
           choices={clusters}
-          disabled
         />
         <FormDataConsumer>
           {({ formData }) => {
-            setSchoolId(formData.id);
+            if (schoolId != formData.id)
+              setSchoolId(formData.id);
+            if (formData.location.district != locationDetails?.district || formData.location.block != locationDetails?.block || formData.location.cluster != locationDetails?.cluster)
+              setLocationDetails({ ...locationDetails, district: formData.location.district, block: formData.location.block, cluster: formData.location.cluster })
             return <></>
           }}
         </FormDataConsumer>

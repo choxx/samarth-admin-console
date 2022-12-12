@@ -102,7 +102,24 @@ const UserList = () => {
       filter: {},
     })
   );
+  // Hotfix to remove selected district when a filter is "closed".
+  const [tempState, setTempState] = useState(false);
 
+  useEffect(() => {
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'data.roleData.district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+  })
+
+  useEffect(() => {
+    setTimeout(() => setTempState(!tempState), 500)
+  })
+  // *****************************************************************
   const location = useLocation();
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
@@ -199,7 +216,6 @@ const UserList = () => {
         setSelectedBlock(null);
         setSelectedCluster(null);
       }}
-      value={selectedDistrict}
       source="data.roleData.district"
       choices={districts}
     />,
@@ -235,8 +251,6 @@ const UserList = () => {
 
     return (() => clearInterval(a))
   }, [])
-
-
 
   return (
     <ListDataGridWithPermissions

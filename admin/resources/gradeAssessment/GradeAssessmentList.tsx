@@ -9,6 +9,8 @@ import {
   SelectInput,
   ReferenceInput,
   AutocompleteInput,
+  BulkDeleteWithConfirmButton,
+  BulkDeleteButton,
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { useQuery } from "react-query";
@@ -49,6 +51,7 @@ const GradeAssessmentList = () => {
     <ListDataGridWithPermissions
       dataGridProps={{ rowClick: "show" }}
       listProps={{ filters: Filters }}
+      withDelete={<BulkDeleteButton />}
     >
       <TextField source="id" />
       <TextField label={"Assessment"} source="assessment_id" />
@@ -61,8 +64,6 @@ const GradeAssessmentList = () => {
       <TextField source="school.location.block" />
       <TextField source="school.location.cluster" />
       <TextField source="streams_id" />
-      <DateField source="created" />
-      <DateField source="updated" />
     </ListDataGridWithPermissions>
   );
 };

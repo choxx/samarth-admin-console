@@ -13,9 +13,8 @@ export const getLocationDetails = () => {
             filter: {}
         })
     );
-    const districts = _.uniqBy(_districtData?.data, "district").map(el => { return { id: el.district, name: el.district } });
-    const blocks = _.uniqBy(_districtData?.data, "block").map(el => { return { id: el.block, name: el.block } });
-    const clusters = _.uniqBy(_districtData?.data, "cluster").map(el => { return { id: el.cluster, name: el.cluster } });
-
+    const districts = _.uniqBy(_districtData?.data, "district").map(el => { return { id: el.district, name: el.district } }).sort((a: any, b: any) => { return a.name < b.name ? -1 : 1 });
+    const blocks = _.uniqBy(_districtData?.data, "block").map(el => { return { id: el.block, name: el.block } }).sort((a: any, b: any) => { return a.name < b.name ? -1 : 1 });
+    const clusters = _.uniqBy(_districtData?.data, "cluster").map(el => { return { id: el.cluster, name: el.cluster } }).sort((a: any, b: any) => { return a.name < b.name ? -1 : 1 });
     return { districts, blocks, clusters }
 }
