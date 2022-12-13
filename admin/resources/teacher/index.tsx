@@ -10,9 +10,9 @@ export default {
   // show: TeacherShow,
   icon: SchoolIcon,
   permissions: {
-    canEdit: ["Admin"],
-    canDelete: ["Admin"],
-    canCreate: ["Admin"],
-    canList: ["Admin"],
+    canEdit: ["Admin", "School Admin"],
+    canDelete: ["Admin", "School Admin"],
+    canCreate: ["Admin", "School Admin"],
+    canList: ["Admin", "School Admin"],
   },
 };

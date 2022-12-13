@@ -21,6 +21,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import * as _ from "lodash";
 import CustomTextField from "../../components/styleWrappers/CustomTextField";
 import { clientGQL } from "../../api-clients/users-client";
+import { useFormContext } from "react-hook-form";
 
 const categoryMap: any = {
   "OT": "Other",
@@ -30,20 +31,20 @@ const categoryMap: any = {
   "ST": "Scheduled Tribes"
 }
 
-// const streamMap: any = {
-//   1: "first",
-//   2: "second",
-//   3: "third",
-//   4: "fourth",
-//   5: "fifth",
-//   6: "sixth",
-//   7: "seventh",
-//   8: "eigth",
-//   9: "ninth",
-//   10: "tenth",
-//   11: "Arts",
-//   12: "Arts"
-// }
+const streamMap: any = {
+  1: "first",
+  2: "second",
+  3: "third",
+  4: "fourth",
+  5: "fifth",
+  6: "sixth",
+  7: "seventh",
+  8: "eigth",
+  9: "ninth",
+  10: "tenth",
+  11: "Arts",
+  12: "Arts"
+}
 
 const StudentEdit = () => {
   const notify = useNotify();
@@ -104,7 +105,6 @@ const StudentEdit = () => {
   const [udise, setUdise] = useState(0);
   const studentId = useRef();
   const schoolId = useRef();
-  const [reRender, setReRender] = useState(false);
   const fetchSchoolData = async (udise: any) => {
     return await dataProvider.getList('school', {
       pagination: { perPage: 10000, page: 1 },
@@ -173,57 +173,51 @@ const StudentEdit = () => {
 
   console.log(studentId.current, schoolId.current);
 
-  // const forceRender = () => {
-  //   setReRender(true);
-  //   setTimeout(() => {
-  //     setReRender(false);
-  //   }, 100)
-  // }
+  const EditForm = () => {
+    const { setValue } = useFormContext();
+
+    return <><span>Student Details</span>
+      <TextInput source="id" disabled />
+      <TextInput source="name" validate={[validateName]} />
+      <FunctionField
+        render={(record: any) => {
+          return (
+            <CustomTextField label="School Name" i={schoolName} customStyle={{ marginBottom: "15px", minWidth: "13rem", height: "3rem" }} />
+          )
+        }} />
+      <FunctionField
+        render={(record: any) => {
+          useEffect(() => {
+            if (firstRender.current) {
+              setUdise(record?.school?.udise);
+              firstRender.current = false;
+              return;
+            }
+          })
+          return (
+            <TextInput source="school.udise" label="UDISE" onChange={e => {
+              setUdise(Number(e.target.value));
+            }} />
+          )
+        }} />
+      <TextInput source="father_name" validate={[validateName]} />
+      <TextInput source="mother_name" validate={[validateName]} />
+      <SelectInput source="gender" choices={[{ id: "M", name: "M" }, { id: "F", name: "F" }, { id: "N", name: "N" }]} />
+      <SelectInput source="grade_number" choices={grade()} onChange={(e) => setValue("stream_tag", streamMap[Number(e.target.value)])} />
+      <SelectInput source="stream_tag" label="Stream Tag" choices={streams_choices} />
+      <SelectInput source="section" choices={sections} />
+      <TextInput source="phone" />
+      <SelectInput source="category" choices={category} />
+      <BooleanInput source="is_cwsn" />
+      <BooleanInput source="is_enabled" />
+      <FunctionField render={(record: any) => { studentId.current = record.id; return <></> }} />
+    </>
+  }
 
   return (
     <Edit mutationMode="pessimistic" mutationOptions={{ onSuccess, onError }}>
       <SimpleForm toolbar={<EditToolbar />}>
-        <span>Student Details</span>
-        <TextInput source="id" disabled />
-        <TextInput source="name" validate={[validateName]} />
-        <FunctionField
-          render={(record: any) => {
-            return (
-              <CustomTextField label="School Name" i={schoolName} customStyle={{ marginBottom: "15px", minWidth: "13rem", height: "3rem" }} />
-            )
-          }} />
-        <FunctionField
-          render={(record: any) => {
-            useEffect(() => {
-              if (firstRender.current) {
-                setUdise(record?.school?.udise);
-                firstRender.current = false;
-                return;
-              }
-            })
-            return (
-              <TextInput source="school.udise" label="UDISE" onChange={e => {
-                setUdise(Number(e.target.value));
-              }} />
-            )
-          }} />
-        <TextInput source="father_name" validate={[validateName]} />
-        <TextInput source="mother_name" validate={[validateName]} />
-        <SelectInput source="gender" choices={[{ id: "M", name: "M" }, { id: "F", name: "F" }, { id: "N", name: "N" }]} />
-        <SelectInput source="grade_number" choices={grade()} />
-        {!reRender && <SelectInput source="stream_tag" choices={streams_choices} />}
-        <SelectInput source="section" choices={sections} />
-        <TextInput source="phone" />
-        <SelectInput source="category" choices={category} />
-        <BooleanInput source="is_cwsn" />
-        <BooleanInput source="is_enabled" />
-        <FunctionField render={(record: any) => { studentId.current = record.id; return <></> }} />
-        {/* {reRender && <FormDataConsumer>
-          {({ formData }) => {
-            formData.stream_tag = streamMap[Number(formData.grade_number)]
-            return <></>
-          }}
-        </FormDataConsumer>} */}
+        <EditForm />
       </SimpleForm>
     </Edit>
   );
