@@ -24,11 +24,15 @@ import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import EditWrapper from "../../components/styleWrappers/EditWrapper";
 import { clientGQL } from "../../api-clients/users-client";
 
+const ASSESSMENT_URL = "https://e-samwad.samagra.io/api/v5/assessment/invalidate/?udises=";
+const SCHOOL_CACHE_URL = "https://e-samwad.samagra.io/api/v5/school-cache/invalidate/?udises="
+
 export const SchoolEdit = () => {
   const location = useLocation();
   const notify = useNotify();
   const redirect = useRedirect();
   const [schoolId, setSchoolId] = useState("");
+  const [schoolUdise, setSchoolUdise] = useState<any>(null);
   const locationId = useRef();
   const [locationDetails, setLocationDetails] = useState<any>({});
   const params: any = new Proxy(new URLSearchParams(location.search), {
@@ -152,13 +156,22 @@ export const SchoolEdit = () => {
     </Toolbar>
   );
   const onSuccess = () => {
-    clientGQL(`
-    mutation {
-      delete_school_cache(where: {school_id: {_eq: ${schoolId}}}) {
-        affected_rows
+    // Clearing school cache;
+    const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
+    const token = userData?.user?.token;
+    fetch(SCHOOL_CACHE_URL + `[${schoolUdise}]`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    }    
-    `)
+    })
+    fetch(ASSESSMENT_URL + `[${schoolUdise}]`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
     if (schoolId && locationId.current)
       clientGQL(`
       mutation {
@@ -180,6 +193,20 @@ export const SchoolEdit = () => {
         }
       }
       `)
+      const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
+      const token = userData?.user?.token;
+      fetch(SCHOOL_CACHE_URL + `[${schoolUdise}]`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      fetch(ASSESSMENT_URL + `[${schoolUdise}]`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       notify(`School updated successfully`, { type: 'success' });
       redirect(`/school`);
     } else {
@@ -240,6 +267,8 @@ export const SchoolEdit = () => {
           {({ formData }) => {
             if (schoolId != formData.id)
               setSchoolId(formData.id);
+            if (!schoolUdise)
+              setSchoolUdise(formData.udise);
             if (formData.location.district != locationDetails?.district || formData.location.block != locationDetails?.block || formData.location.cluster != locationDetails?.cluster)
               setLocationDetails({ ...locationDetails, district: formData.location.district, block: formData.location.block, cluster: formData.location.cluster })
             return <></>

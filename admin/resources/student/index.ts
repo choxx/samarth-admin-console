@@ -9,9 +9,9 @@ export default {
   edit: StudentEdit,
   // show: StudentShow,
   permissions: {
-    canEdit: ["Admin","State Admin","District Admin", "Block Admin"],
-    // canDelete: ["Admin"],
-    // canCreate: ["Admin"],
-    canList: ["Admin","State Admin","District Admin", "Block Admin"],
+    canEdit: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
+    canDelete: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
+    canCreate: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
+    canList: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
   },
 };
