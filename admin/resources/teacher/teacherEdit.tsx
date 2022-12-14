@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { client } from "../../api-clients/users-client";
 import {
   TextInput,
   ReferenceInput,
@@ -118,7 +119,8 @@ const TeacherEdit = ({ record }: any) => {
   const redirect = useRedirect();
   const schoolId = useRef();
   const teacherId = useRef();
-
+  const [faId, setFaId] = useState();
+  const [faData, setFaData] = useState<any>();
   const udiseValidation = async (value: any) => {
     const res = await dataProvider.getList('school', {
       pagination: { perPage: 1, page: 1 },
@@ -141,6 +143,9 @@ const TeacherEdit = ({ record }: any) => {
         }
       }
       `)
+      if (faData.mobilePhone) {
+        client.patch("/admin/updateUser/" + faId, faData);
+      }
       notify(`Teacher edited successfully`, { type: 'success' });
       redirect(`/teacher`);
     } else {
@@ -158,13 +163,35 @@ const TeacherEdit = ({ record }: any) => {
       }
     }
     `)
+    if (faData.mobilePhone) {
+      client.patch("/admin/updateUser/" + faId, faData);
+    }
     notify(`Teacher edited successfully`, { type: 'success' });
     redirect(`/teacher`);
   }
 
+  const getTeacherFromFusionAuth = async () => {
+    const result = await dataProvider.getList('e_samwaad_user', {
+      pagination: { perPage: 1, page: 1 },
+      sort: { field: 'id', order: 'asc' },
+      filter: { user_id: faId }
+    })
+    if (result?.data?.[0]) {
+      setFaData(result?.data?.[0]);
+    } else {
+      setFaData([])
+    }
+  }
+
+  useEffect(() => {
+    if (!faData)
+      getTeacherFromFusionAuth();
+  })
+
   return (
     <Edit mutationOptions={{ onError, onSuccess }} mutationMode='pessimistic'>
       <SimpleForm>
+        <TextInput disabled source="name" defaultValue={faData?.firstName} />
         <TextInput disabled source="id" />
         <TextInput source="school.name" label="School" disabled />
         <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} />
@@ -172,7 +199,18 @@ const TeacherEdit = ({ record }: any) => {
         <SelectInput label="Mode of employment" source="employment" choices={['Contractual', 'Permanent'].map(el => { return { id: el, name: el } })} />
         <TextInput label="Designation" source="designation" disabled />
         <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
-        <FunctionField render={(record: any) => { teacherId.current = record.id; return <></> }} />
+        <TextInput source="mobilePhone" defaultValue={faData?.mobilePhone} onChange={e => setFaData({ ...faData, mobilePhone: e.target.value })} />
+        <FormDataConsumer>
+          {({ formData }) => {
+            if (!faId)
+              setFaId(formData.user_id);
+            teacherId.current = formData.id;
+            if (faData?.mobilePhone) {
+              formData.mobilePhone = faData.mobilePhone;
+            }
+            return <></>
+          }}
+        </FormDataConsumer>
       </SimpleForm>
     </Edit>
   );

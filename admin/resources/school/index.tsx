@@ -11,9 +11,9 @@ export default {
   // show: SchoolShow,
   create: SchoolCreate,
   permissions: {
-    canEdit: ["Admin", "State Admin","District Admin", "Block Admin"],
+    canEdit: ["Admin", "State Admin", "District Admin", "Block Admin"],
     // canDelete: ["Admin"],
-    canCreate: ["Admin","State Admin","District Admin", "Block Admin"],
-    canList: ["Admin","State Admin","District Admin", "Block Admin"],
+    canCreate: ["Admin", "State Admin", "District Admin"],
+    canList: ["Admin", "State Admin", "District Admin", "Block Admin"],
   },
 };

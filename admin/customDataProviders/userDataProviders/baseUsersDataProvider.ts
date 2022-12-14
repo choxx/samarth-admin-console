@@ -64,6 +64,9 @@ const dataProvider = {
       if (filter?.cluster) {
         queryString.push(`data.roleData.cluster:"${filter?.cluster}"`);
       }
+      if (filter?.user_id) {
+        queryString.push(`id:"${filter?.user_id}"`);
+      }
       if (filter?.username) {
         queryString.push(
           `username:${filter?.username} OR username:*${filter?.username}*`
