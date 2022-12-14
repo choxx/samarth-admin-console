@@ -39,7 +39,7 @@ const streamMap: any = {
   5: "fifth",
   6: "sixth",
   7: "seventh",
-  8: "eigth",
+  8: "eighth",
   9: "ninth",
   10: "tenth",
   11: "Arts",
@@ -185,7 +185,7 @@ const StudentEdit = () => {
             <CustomTextField label="School Name" i={schoolName} customStyle={{ marginBottom: "15px", minWidth: "13rem", height: "3rem" }} />
           )
         }} />
-      <FunctionField
+      {/* <FunctionField
         render={(record: any) => {
           useEffect(() => {
             if (firstRender.current) {
@@ -199,7 +199,8 @@ const StudentEdit = () => {
               setUdise(Number(e.target.value));
             }} />
           )
-        }} />
+        }} /> */}
+      <TextInput source="school.udise" label="UDISE" onChange={e => setTimeout(() => setUdise(e.target.value), 2000)} />
       <TextInput source="father_name" validate={[validateName]} />
       <TextInput source="mother_name" validate={[validateName]} />
       <SelectInput source="gender" choices={[{ id: "M", name: "M" }, { id: "F", name: "F" }, { id: "N", name: "N" }]} />
@@ -211,6 +212,13 @@ const StudentEdit = () => {
       <BooleanInput source="is_cwsn" />
       <BooleanInput source="is_enabled" />
       <FunctionField render={(record: any) => { studentId.current = record.id; return <></> }} />
+      <FormDataConsumer>
+        {({ formData }) => {
+          if (!udise)
+            setUdise(formData.school.udise)
+          return <></>
+        }}
+      </FormDataConsumer>
     </>
   }
 

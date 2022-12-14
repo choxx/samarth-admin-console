@@ -145,7 +145,7 @@ const TeacherEdit = ({ record }: any) => {
       }
       `)
       if (faData.mobilePhone) {
-        client.patch("/admin/updateUser/" + faId, faData);
+        client.patch("/admin/updateUser/" + faId.current, { ...faData, data: { ...faData.data, school: Number(schoolId.current) } });
       }
       notify(`Teacher edited successfully`, { type: 'success' });
       redirect(`/teacher`);
@@ -165,7 +165,7 @@ const TeacherEdit = ({ record }: any) => {
     }
     `)
     if (faData.mobilePhone) {
-      client.patch("/admin/updateUser/" + faId.current, faData);
+      client.patch("/admin/updateUser/" + faId.current, { ...faData, data: { ...faData.data, school: Number(schoolId.current) } });
     }
     notify(`Teacher edited successfully`, { type: 'success' });
     redirect(`/teacher`);
@@ -213,7 +213,7 @@ const TeacherEdit = ({ record }: any) => {
         <NameFA />
         <TextInput disabled source="id" />
         <TextInput source="school.name" label="School" disabled />
-        <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} />
+        <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} onChange={e => setFaData({ ...faData, data: { ...faData.data, udise: e.target.value } })} />
         {/* <TextInput source="school.udise" label="UDISE" validate={ } onChange={e => handleUdiseChange(Number(e.target.value))} /> */}
         <SelectInput label="Mode of employment" source="employment" choices={['Contractual', 'Permanent'].map(el => { return { id: el, name: el } })} />
         <TextInput label="Designation" source="designation" disabled />

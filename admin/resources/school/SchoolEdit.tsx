@@ -229,8 +229,8 @@ export const SchoolEdit = () => {
         <NumberInput source="udise" disabled />
         <NumberInput source="enroll_count" />
         <BooleanInput source="is_active" />
-        <TextInput source="latitude" />
-        <TextInput source="longitude" />
+        <NumberInput source="latitude" />
+        <NumberInput source="longitude" />
         <SelectInput
           label="District"
           key={"district"}
