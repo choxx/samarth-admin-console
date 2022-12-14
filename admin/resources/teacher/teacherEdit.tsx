@@ -19,6 +19,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import { clientGQL } from "../../api-clients/users-client";
 import { ChangePasswordTeacher } from "./ChangePasswordTeacher";
+import { useFormContext } from 'react-hook-form';
 const ApplicationId = "1ae074db-32f3-4714-a150-cc8a370eafd1";
 
 const displayRoles = (a: any) => {
@@ -182,7 +183,9 @@ const TeacherEdit = ({ record }: any) => {
       setFaData([])
     }
   }
+
   console.log(faData?.firstName)
+
   useEffect(() => {
     if (!faData && faId.current)
       getTeacherFromFusionAuth();
@@ -190,10 +193,24 @@ const TeacherEdit = ({ record }: any) => {
 
   }, [])
 
+  const NameFA = () => {
+    const { setValue, getValues } = useFormContext();
+    if (!getValues("name") && faData?.firstName)
+      setValue("name", faData?.firstName)
+    return <TextInput disabled source="name" />
+  }
+
+  const MobileFA = () => {
+    const { setValue, getValues } = useFormContext();
+    if (!getValues("mobilePhone") && faData?.mobilePhone)
+      setValue("mobilePhone", faData?.mobilePhone)
+    return <TextInput source="mobilePhone" onChange={e => setFaData({ ...faData, mobilePhone: e.target.value })} />
+  }
+
   return (
     <Edit mutationOptions={{ onError, onSuccess }} mutationMode='pessimistic'>
       <SimpleForm>
-        <TextInput disabled source="name" defaultValue={faData?.firstName} />
+        <NameFA />
         <TextInput disabled source="id" />
         <TextInput source="school.name" label="School" disabled />
         <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} />
@@ -201,7 +218,7 @@ const TeacherEdit = ({ record }: any) => {
         <SelectInput label="Mode of employment" source="employment" choices={['Contractual', 'Permanent'].map(el => { return { id: el, name: el } })} />
         <TextInput label="Designation" source="designation" disabled />
         <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
-        <TextInput source="mobilePhone" defaultValue={faData?.mobilePhone} onChange={e => setFaData({ ...faData, mobilePhone: e.target.value })} />
+        <MobileFA />
         <FormDataConsumer>
           {({ formData }) => {
             if (!faId.current)
