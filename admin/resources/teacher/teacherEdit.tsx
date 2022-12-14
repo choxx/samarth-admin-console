@@ -117,9 +117,9 @@ const TeacherEdit = ({ record }: any) => {
   const notify = useNotify();
   const dataProvider = useDataProvider();
   const redirect = useRedirect();
-  const schoolId = useRef();
-  const teacherId = useRef();
-  const [faId, setFaId] = useState();
+  const schoolId = useRef<any>();
+  const teacherId = useRef<any>();
+  const faId = useRef<any>();
   const [faData, setFaData] = useState<any>();
   const udiseValidation = async (value: any) => {
     const res = await dataProvider.getList('school', {
@@ -164,7 +164,7 @@ const TeacherEdit = ({ record }: any) => {
     }
     `)
     if (faData.mobilePhone) {
-      client.patch("/admin/updateUser/" + faId, faData);
+      client.patch("/admin/updateUser/" + faId.current, faData);
     }
     notify(`Teacher edited successfully`, { type: 'success' });
     redirect(`/teacher`);
@@ -174,7 +174,7 @@ const TeacherEdit = ({ record }: any) => {
     const result = await dataProvider.getList('e_samwaad_user', {
       pagination: { perPage: 1, page: 1 },
       sort: { field: 'id', order: 'asc' },
-      filter: { user_id: faId }
+      filter: { user_id: faId.current }
     })
     if (result?.data?.[0]) {
       setFaData(result?.data?.[0]);
@@ -182,11 +182,13 @@ const TeacherEdit = ({ record }: any) => {
       setFaData([])
     }
   }
-
+  console.log(faData?.firstName)
   useEffect(() => {
-    if (!faData)
+    if (!faData && faId.current)
       getTeacherFromFusionAuth();
-  })
+    return () => { faId.current = null; setFaData(null); schoolId.current = null; teacherId.current = null; }
+
+  }, [])
 
   return (
     <Edit mutationOptions={{ onError, onSuccess }} mutationMode='pessimistic'>
@@ -202,8 +204,8 @@ const TeacherEdit = ({ record }: any) => {
         <TextInput source="mobilePhone" defaultValue={faData?.mobilePhone} onChange={e => setFaData({ ...faData, mobilePhone: e.target.value })} />
         <FormDataConsumer>
           {({ formData }) => {
-            if (!faId)
-              setFaId(formData.user_id);
+            if (!faId.current)
+              faId.current = formData.user_id;
             teacherId.current = formData.id;
             if (faData?.mobilePhone) {
               formData.mobilePhone = faData.mobilePhone;
