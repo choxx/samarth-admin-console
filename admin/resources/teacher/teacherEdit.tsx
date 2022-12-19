@@ -204,7 +204,7 @@ const TeacherEdit = ({ record }: any) => {
     const { setValue, getValues } = useFormContext();
     if (!getValues("mobilePhone") && faData?.mobilePhone)
       setValue("mobilePhone", faData?.mobilePhone)
-    return <TextInput source="mobilePhone" onChange={e => setFaData({ ...faData, mobilePhone: e.target.value })} />
+    return <TextInput source="mobilePhone" onChange={e => setTimeout(() => setFaData({ ...faData, mobilePhone: e.target.value }), 3000)} />
   }
 
   return (

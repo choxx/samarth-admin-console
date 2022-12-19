@@ -200,7 +200,7 @@ const StudentEdit = () => {
             }} />
           )
         }} /> */}
-      <TextInput source="school.udise" label="UDISE" onChange={e => setTimeout(() => setUdise(e.target.value), 2000)} />
+      <TextInput source="school.udise" label="UDISE" onChange={e => setTimeout(() => setUdise(e.target.value), 3000)} />
       <TextInput source="father_name" validate={[validateName]} />
       <TextInput source="mother_name" validate={[validateName]} />
       <SelectInput source="gender" choices={[{ id: "M", name: "M" }, { id: "F", name: "F" }, { id: "N", name: "N" }]} />

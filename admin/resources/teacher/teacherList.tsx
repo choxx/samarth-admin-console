@@ -3,11 +3,12 @@ import {
   useNotify,
   TopToolbar,
   FilterButton,
-  ExportButton
+  ExportButton,
+  FunctionField
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { Chip } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { clientGQL } from "../../api-clients/users-client";
@@ -79,6 +80,9 @@ const TeacherList = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedBlock, setSelectedBlock] = useState("");
   const [designationChoices, setDesignationChoices] = useState([]);
+  const [teacherData, setTeacherData] = useState<any>({});
+  let promiseMap = useRef<any>({});
+
   const {
     data: _districtData
   } = useQuery(["location", "getList", {}], () =>
@@ -252,9 +256,42 @@ const TeacherList = () => {
     </TopToolbar>
   );
 
+  const getTeacherName = async (record: any) => {
+    promiseMap.current[record.user_id] = true;
+    const result: any = await dataProvider.getList('e_samwaad_user', {
+      pagination: { perPage: 1, page: 1 },
+      sort: { field: 'id', order: 'asc' },
+      filter: { user_id: record.user_id }
+    })
+    if (result?.data?.[0])
+      setTeacherData((prevData: any) => {
+        return {
+          ...prevData, [record.user_id]: {
+            name: result?.data?.[0]?.firstName,
+            mobile: result?.data?.[0]?.mobilePhone
+          }
+        }
+      })
+  }
+
   return (
     <ListDataGridWithPermissions dataGridProps={{ rowClick: "show" }} showExporter={true} listProps={{ filters: Filters, actions: <ListActions />, 'exporter': exporter }}>
       {/* <TextField source="id" /> */}
+      <FunctionField
+        label={"Name"}
+        render={(record: any) => {
+          if (!promiseMap.current[record.user_id])
+            getTeacherName(record);
+          else
+            return <span>{teacherData?.[record.user_id]?.name || "----------------"}</span>
+        }}
+      />
+      <FunctionField
+        label={"Mobile"}
+        render={(record: any) => {
+          return <span>{teacherData?.[record.user_id]?.mobile || "----------------"}</span>
+        }}
+      />
       <TextField source="school.name" />
       <TextField source="school.udise" />
       <TextField label="Mode of employment" source="employment" />
