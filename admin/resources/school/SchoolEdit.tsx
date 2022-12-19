@@ -87,52 +87,52 @@ export const SchoolEdit = () => {
     }
   }
 
-  // const districtData = useMemo(() => {
-  //   return _districtData?.data;
-  // }, [_districtData]);
+  const districtData = useMemo(() => {
+    return _districtData?.data;
+  }, [_districtData]);
 
-  // const districts = useMemo(() => {
-  //   if (!districtData) {
-  //     return [];
-  //   }
-  //   return _.uniqBy(districtData, "district").map((a) => {
-  //     return {
-  //       id: a.district,
-  //       name: a.district,
-  //     };
-  //   });
-  // }, [districtData]);
+  const districts = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    return _.uniqBy(districtData, "district").map((a) => {
+      return {
+        id: a.district,
+        name: a.district,
+      };
+    });
+  }, [districtData]);
 
-  // const blocks = useMemo(() => {
-  //   if (!selectedDistrict || !districtData) {
-  //     return [];
-  //   }
+  const blocks = useMemo(() => {
+    if (!selectedDistrict || !districtData) {
+      return [];
+    }
 
-  //   return _.uniqBy(
-  //     districtData.filter((d) => d.district === selectedDistrict),
-  //     "block"
-  //   ).map((a) => {
-  //     return {
-  //       id: a.block,
-  //       name: a.block,
-  //     };
-  //   });
-  // }, [selectedDistrict, districtData]);
+    return _.uniqBy(
+      districtData.filter((d) => d.district === selectedDistrict),
+      "block"
+    ).map((a) => {
+      return {
+        id: a.block,
+        name: a.block,
+      };
+    });
+  }, [selectedDistrict, districtData]);
 
-  // const clusters = useMemo(() => {
-  //   if (!selectedBlock || !districtData) {
-  //     return [];
-  //   }
-  //   return _.uniqBy(
-  //     districtData.filter((d) => d.block === selectedBlock),
-  //     "cluster"
-  //   ).map((a) => {
-  //     return {
-  //       id: a.cluster,
-  //       name: a.cluster,
-  //     };
-  //   });
-  // }, [selectedBlock, districtData]);
+  const clusters = useMemo(() => {
+    if (!selectedBlock || !districtData) {
+      return [];
+    }
+    return _.uniqBy(
+      districtData.filter((d) => d.block === selectedBlock),
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData]);
 
   // Input Constraints
   const inputConstraints = {
@@ -148,7 +148,7 @@ export const SchoolEdit = () => {
     coord: [required("Please enter a valid co-ordinate"), regex(/^[1-9]\d*(\.\d+)?$/, "Please enter a valid co-ordinate")]
   }
 
-  const { districts, blocks, clusters } = getLocationDetails();
+  // const { districts, blocks, clusters } = getLocationDetails();
 
   const EditToolbar = (props: any) => (
     <Toolbar  {...props}>
@@ -265,6 +265,10 @@ export const SchoolEdit = () => {
         />
         <FormDataConsumer>
           {({ formData }) => {
+            if (!selectedDistrict && formData.location.district)
+              setSelectedDistrict(formData.location.district)
+            if (!selectedBlock && formData.location.block)
+              setSelectedBlock(formData.location.block)
             if (schoolId != formData.id)
               setSchoolId(formData.id);
             if (!schoolUdise)
