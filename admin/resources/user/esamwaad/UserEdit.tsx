@@ -295,7 +295,7 @@ const UserForm = (props: any) => {
       return "Please enter a valid UDISE";
 
     schoolId.current = res.data[0].id;
-    if (record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles.includes("school")) {
+    if (record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles?.length == 1 && record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles.includes("school")) {
       const userRes = await dataProvider.getUserByUdise("e_samwaad_user", { id: state.udise });
       // console.log(schoolID, userRes.data);
       if (userRes?.data?.length)
