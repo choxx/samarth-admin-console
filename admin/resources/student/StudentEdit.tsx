@@ -128,7 +128,7 @@ const StudentEdit = () => {
   const validateName = (value: any) => {
     if (/[\u0900-\u097F]/.test(value))
       return undefined;
-    if (!(/^[A-Z@~`!@#$%^&*()_=+\\\\';:\"\\/?>.<,-]*$/i.test(value)))
+    if (!/^([A-Za-z\s/]*)$/.test(value))
       return "Name should contain only letters, spaces and slashes.";
     return undefined;
   };
