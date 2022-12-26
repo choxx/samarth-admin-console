@@ -32,6 +32,7 @@ import { useMutation, useQuery } from "react-query";
 import { useController } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { ChangePasswordButton } from "../ChangePasswordButton";
+import { useFormContext } from "react-hook-form";
 
 const ApplicationId = "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da";
 
@@ -253,7 +254,7 @@ const UserForm = (props: any) => {
   const { schoolId, setExtraState } = props;
   const record = useRecordContext();
   const [theme] = useTheme();
-  const [reRender, setReRender] = useState(false);
+  const { setValue } = useFormContext();
   const [state, setState] = useState<any>({
     // Here we are putting only the index where user is registered in Shiksha.
     roles:
@@ -276,8 +277,9 @@ const UserForm = (props: any) => {
         schoolId.current = res.data[0].school_id;
         setState({ ...state, designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
         setExtraState({ designation: res.data[0].designation, accountStatus: res.data[0].account_status, modeOfEmployment: res.data[0].employment })
-        setReRender(true);
-        setTimeout(() => setReRender(false), 100)
+        setValue("data.designation", res.data[0].designation)
+        setValue("data.accountStatus", res.data[0].account_status)
+        setValue("data.modeOfEmployment", res.data[0].employment)
       }
     })
   }, [])
@@ -293,7 +295,7 @@ const UserForm = (props: any) => {
       return "Please enter a valid UDISE";
 
     schoolId.current = res.data[0].id;
-    if (record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles.includes("school")) {
+    if (record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles?.length == 1 && record?.registrations?.filter((el: any) => el.applicationId == ApplicationId)?.[0]?.roles.includes("school")) {
       const userRes = await dataProvider.getUserByUdise("e_samwaad_user", { id: state.udise });
       // console.log(schoolID, userRes.data);
       if (userRes?.data?.length)
@@ -393,7 +395,7 @@ const UserForm = (props: any) => {
         (state.roles.includes("Principal") ||
           state.roles.includes("Teacher")) && (
           <>
-            {!reRender && <SelectInput
+            <SelectInput
               value={state.designation}
               onChange={(e: any) =>
                 setState({ ...state, designationNew: e.target.value })
@@ -404,9 +406,8 @@ const UserForm = (props: any) => {
               choices={inputChoices.designations}
               validate={inputConstraints.designation}
             />
-            }
 
-            {!reRender && <SelectInput
+            <SelectInput
               value={state.accountStatus}
               onChange={(e: any) =>
                 setState({ ...state, accountStatusNew: e.target.value })
@@ -416,10 +417,10 @@ const UserForm = (props: any) => {
               label="Account Status"
               choices={inputChoices.accountStatuses}
               validate={inputConstraints.accountStatus}
-            />}
+            />
 
 
-            {!reRender && <SelectInput
+            <SelectInput
               value={state.modeOfEmployment}
               onChange={(e: any) =>
                 setState({ ...state, modeOfEmploymentNew: e.target.value })
@@ -429,7 +430,7 @@ const UserForm = (props: any) => {
               label="Mode of employment"
               validate={inputConstraints.modeOfEmployment}
               choices={inputChoices.employment}
-            />}
+            />
 
           </>
         )}
@@ -440,22 +441,6 @@ const UserForm = (props: any) => {
         validate={inputConstraints.udise}
         defaultValue={record?.data?.udise}
       />
-
-      {reRender && <FormDataConsumer>
-        {({ formData }) => {
-          if (state.designation) {
-            formData.data.designation = state.designation;
-          }
-          if (state.accountStatus) {
-            formData.data.accountStatus = state.accountStatus;
-          }
-          if (state.modeOfEmployment) {
-            formData.data.modeOfEmployment = state.modeOfEmployment;
-          }
-          console.log("FD", formData)
-          return <></>
-        }}
-      </FormDataConsumer>}
 
       <ChangePasswordButton record={record}></ChangePasswordButton>
       <br></br>

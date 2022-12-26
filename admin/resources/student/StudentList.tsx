@@ -11,7 +11,13 @@ import {
   TopToolbar,
   useDataProvider,
   useListContext,
+  downloadCSV,
+  useNotify,
+  BooleanInput
 } from "react-admin";
+
+//@ts-ignore don't rearrange this line :)
+import jsonExport from 'jsonexport/dist';
 
 import {
   BooleanField,
@@ -29,7 +35,6 @@ import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { isBoolean } from "lodash";
 import EditButtonWrapper from "../../components/styleWrappers/EditButtonWrapper";
-import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import { streams_choices } from "./StudentStreams";
 
 
@@ -58,11 +63,27 @@ const StudentList = () => {
     initialFilters?.gender || ""
   );
 
+  const [selectedDistrict, setSelectedDistrict] = useState(
+    initialFilters?.district || ""
+  );
+  const [selectedBlock, setSelectedBlock] = useState(
+    initialFilters?.block || ""
+  );
+
   const dataProvider = useDataProvider();
+
   const {
-    data: _studentData,
-    isLoading,
-    error,
+    data: _districtData
+  } = useQuery(["location", "getList", {}], () =>
+    dataProvider.getList("location", {
+      pagination: { perPage: 10000, page: 1 },
+      sort: { field: "id", order: "asc" },
+      filter: {},
+    })
+  );
+
+  const {
+    data: _studentData
   } = useQuery(["student", "getList", {}], () =>
     dataProvider.getList("student", {
       pagination: { perPage: 10000, page: 1 },
@@ -70,6 +91,91 @@ const StudentList = () => {
       filter: {},
     })
   );
+
+  // Hotfix to remove selected district when a filter is "closed".
+  // const [tempState, setTempState] = useState(false);
+  useEffect(() => {
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+  })
+
+  // useEffect(() => {
+  //   setTimeout(() => setTempState(!tempState), 500)
+  // })
+
+  const districtData = useMemo(() => {
+    return _districtData?.data;
+  }, [_districtData]);
+
+  const districts = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    return _.uniqBy(districtData, "district").map((a) => {
+      return {
+        id: a.district,
+        name: a.district,
+      };
+    });
+  }, [districtData]);
+  const blocks = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedDistrict) {
+      return _.uniqBy(
+        districtData,
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
+    return _.uniqBy(
+      districtData.filter((d) => d.district === selectedDistrict),
+      "block"
+    ).map((a) => {
+      return {
+        id: a.block,
+        name: a.block,
+      };
+    });
+  }, [selectedDistrict, districtData]);
+
+  const clusters = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedBlock) {
+      return _.uniqBy(
+        districtData,
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+    return _.uniqBy(
+      districtData.filter((d) => d.block === selectedBlock),
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData]);
+
 
   const studentData = useMemo(() => {
     return _studentData?.data;
@@ -146,10 +252,9 @@ const StudentList = () => {
     });
   }, [selectedCwsn, studentData]);
 
-  const { districts, blocks, clusters } = getLocationDetails();
-
   const Filters = [
     <NumberInput label="ID" source="id" alwaysOn />,
+    <BooleanInput source="is_enabled" alwaysOn />,
     <TextInput label="UDISE" source="school#udise" key="search" />,
     <TextInput label="School Name" source="school#name@_ilike" key={"search"} />,
     <SelectArrayInput
@@ -164,22 +269,6 @@ const StudentList = () => {
       }}
       source="grade_number"
       choices={grade}
-    />,
-    <SelectInput
-      label="Status"
-      key={"is_enabled"}
-      onChange={(e: any) => {
-        setSelectedStatus(e.target.value);
-        setSelectedGrade(null);
-        setSelectedStream(null);
-        setSelectedCategory(null);
-        setSelectedCwsn(null);
-        setSelectedGender(null);
-      }}
-      value={selectedStatus}
-      source="is_enabled"
-      choices={enabled}
-      isRequired={true}
     />,
     <SelectArrayInput
       label="Stream"
@@ -211,7 +300,7 @@ const StudentList = () => {
       isRequired={true}
     />,
     <SelectInput
-      label="cwsn"
+      label="CWSN"
       onChange={(e) => {
         setSelectedStatus(null);
         setSelectedGrade(null);
@@ -226,7 +315,7 @@ const StudentList = () => {
       isRequired={true}
     />,
     <SelectArrayInput
-      label="gender"
+      label="Gender"
       onChange={(e) => {
         setSelectedStatus(null);
         setSelectedGrade(null);
@@ -239,8 +328,15 @@ const StudentList = () => {
       choices={gender}
       isRequired={true}
     />,
-    <SelectArrayInput label="District" source="school#location#district" choices={districts} />,
-    <SelectArrayInput label="Block" source="school#location#block" choices={blocks} />,
+    <SelectInput label="District" source="school#location#district" choices={districts}
+      onChange={(e: any) => {
+        setSelectedDistrict(e.target.value);
+        setSelectedBlock(null);
+      }} />,
+    <SelectInput label="Block" source="school#location#block" choices={blocks}
+      onChange={(e: any) => {
+        setSelectedBlock(e.target.value);
+      }} />,
     <SelectInput label="Cluster" source="school#location#cluster" choices={clusters} />,
   ];
   const StudentPagination = () => (
@@ -251,7 +347,7 @@ const StudentList = () => {
   const ListActions = () => (
     <TopToolbar>
       <FilterButton />
-      <ExportButton />
+      <ExportButton maxResults={30000} />
     </TopToolbar>
   );
   // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
@@ -267,9 +363,35 @@ const StudentList = () => {
 
     return (() => clearInterval(a))
   }, [])
+  const notify = useNotify();
+  const exporter = (records: any) => {
+    const recordsForExports = records.map((rec: any) => {
+      const recForExport = {
+        'Name': rec?.name,
+        'Student ID': rec?.admission_number,
+        "Father's Name": rec?.father_name,
+        "Mother's Name": rec?.mother_name,
+        'Class': rec?.grade_number,
+        'Section': rec?.section,
+        'Stream': rec?.stream_tag,
+        'Mobile': rec?.phone,
+        'Gender': rec?.gender,
+        'CWSN': rec?.is_cwsn ? "Yes" : "No",
+        'Category': rec?.category
+      }
+      return recForExport;
+    });
+    jsonExport(recordsForExports, {
+      headers: ['Name', 'Student ID', "Father's Name", "Mother's Name", 'Class', 'Section', 'Stream', 'Mobile', 'Gender', 'CWSN', 'Category']
+    }, (err: any, csv: any) => {
+      if (err) notify(err.toString(), { type: 'warning' })
+      downloadCSV(csv, 'Samarth Students');
+    });
+  };
+
 
   return (
-    <List filters={Filters} pagination={<StudentPagination />} actions={<ListActions />}>
+    <List filters={Filters} exporter={exporter} pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="name" />
@@ -280,9 +402,9 @@ const StudentList = () => {
         <TextField source="stream_tag" />
         <BooleanField source="is_cwsn" label={"CWSN"} />
         <TextField source="gender" label={"Gender"} />
-        <TextField source="school.location.district" label="District" />
+        {/* <TextField source="school.location.district" label="District" />
         <TextField source="school.location.block" label="Block" />
-        <TextField source="school.location.cluster" label="Cluster" />
+        <TextField source="school.location.cluster" label="Cluster" /> */}
         <BooleanField source="is_enabled" label={"Enabled"} />
         <EditButtonWrapper />
       </Datagrid>

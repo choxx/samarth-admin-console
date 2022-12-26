@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { client } from "../../api-clients/users-client";
 import {
   TextInput,
   ReferenceInput,
@@ -18,6 +19,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import { clientGQL } from "../../api-clients/users-client";
 import { ChangePasswordTeacher } from "./ChangePasswordTeacher";
+import { useFormContext } from 'react-hook-form';
 const ApplicationId = "1ae074db-32f3-4714-a150-cc8a370eafd1";
 
 const displayRoles = (a: any) => {
@@ -116,9 +118,10 @@ const TeacherEdit = ({ record }: any) => {
   const notify = useNotify();
   const dataProvider = useDataProvider();
   const redirect = useRedirect();
-  const schoolId = useRef();
-  const teacherId = useRef();
-
+  const schoolId = useRef<any>();
+  const teacherId = useRef<any>();
+  const faId = useRef<any>();
+  const [faData, setFaData] = useState<any>();
   const udiseValidation = async (value: any) => {
     const res = await dataProvider.getList('school', {
       pagination: { perPage: 1, page: 1 },
@@ -141,6 +144,9 @@ const TeacherEdit = ({ record }: any) => {
         }
       }
       `)
+      if (faData.mobilePhone) {
+        client.patch("/admin/updateUser/" + faId.current, { ...faData, data: { ...faData.data, school: Number(schoolId.current) } });
+      }
       notify(`Teacher edited successfully`, { type: 'success' });
       redirect(`/teacher`);
     } else {
@@ -158,21 +164,72 @@ const TeacherEdit = ({ record }: any) => {
       }
     }
     `)
+    if (faData.mobilePhone) {
+      client.patch("/admin/updateUser/" + faId.current, { ...faData, data: { ...faData.data, school: Number(schoolId.current) } });
+    }
     notify(`Teacher edited successfully`, { type: 'success' });
     redirect(`/teacher`);
+  }
+
+  const getTeacherFromFusionAuth = async () => {
+    const result = await dataProvider.getList('e_samwaad_user', {
+      pagination: { perPage: 1, page: 1 },
+      sort: { field: 'id', order: 'asc' },
+      filter: { user_id: faId.current }
+    })
+    if (result?.data?.[0]) {
+      setFaData(result?.data?.[0]);
+    } else {
+      setFaData([])
+    }
+  }
+
+  console.log(faData?.firstName)
+
+  useEffect(() => {
+    if (!faData && faId.current)
+      getTeacherFromFusionAuth();
+    return () => { faId.current = null; setFaData(null); schoolId.current = null; teacherId.current = null; }
+
+  }, [])
+
+  const NameFA = () => {
+    const { setValue, getValues } = useFormContext();
+    if (!getValues("name") && faData?.firstName)
+      setValue("name", faData?.firstName)
+    return <TextInput disabled source="name" />
+  }
+
+  const MobileFA = () => {
+    const { setValue, getValues } = useFormContext();
+    if (!getValues("mobilePhone") && faData?.mobilePhone)
+      setValue("mobilePhone", faData?.mobilePhone)
+    return <TextInput source="mobilePhone" onChange={e => setTimeout(() => setFaData({ ...faData, mobilePhone: e.target.value }), 3000)} />
   }
 
   return (
     <Edit mutationOptions={{ onError, onSuccess }} mutationMode='pessimistic'>
       <SimpleForm>
+        <NameFA />
         <TextInput disabled source="id" />
         <TextInput source="school.name" label="School" disabled />
-        <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} />
+        <TextInput source="school.udise" label="UDISE" validate={[udiseValidation]} onChange={e => setFaData({ ...faData, data: { ...faData.data, udise: e.target.value } })} />
         {/* <TextInput source="school.udise" label="UDISE" validate={ } onChange={e => handleUdiseChange(Number(e.target.value))} /> */}
         <SelectInput label="Mode of employment" source="employment" choices={['Contractual', 'Permanent'].map(el => { return { id: el, name: el } })} />
         <TextInput label="Designation" source="designation" disabled />
         <SelectInput label="Account Status" source="account_status" choices={statusChoices} />
-        <FunctionField render={(record: any) => { teacherId.current = record.id; return <></> }} />
+        <MobileFA />
+        <FormDataConsumer>
+          {({ formData }) => {
+            if (!faId.current)
+              faId.current = formData.user_id;
+            teacherId.current = formData.id;
+            if (faData?.mobilePhone) {
+              formData.mobilePhone = faData.mobilePhone;
+            }
+            return <></>
+          }}
+        </FormDataConsumer>
       </SimpleForm>
     </Edit>
   );

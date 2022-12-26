@@ -10,24 +10,24 @@ import SchoolIcon from "@mui/icons-material/School";
 import teacher from "../../resources/teacher";
 
 const MenuOptions: any[] = [
-  // {
-  //   name: "Student",
-
-  //   icon: "SchoolIcon",
-
-  //   resource: "student",
-  //   props: student,
-  //   permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
-  // },
-  // {
-  //   name: "Teacher",
-  //   icon: "SchoolIcon",
-  //   resource: "teacher",
-  //   props: teacher,
-  //   permissions: ["Admin", "State Admin"],
-  // },
   {
-    name: "e-Samwaad Users",
+    name: "Student",
+
+    icon: "SchoolIcon",
+
+    resource: "student",
+    props: student,
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
+  },
+  {
+    name: "Teacher",
+    icon: "SchoolIcon",
+    resource: "teacher",
+    props: teacher,
+    permissions: ["Admin", "School Admin"],
+  },
+  {
+    name: "e-Samwad Users",
     resource: "e_samwaad_user",
     props: Esamwaad,
 
@@ -48,27 +48,27 @@ const MenuOptions: any[] = [
     permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
     icon: "SchoolIcon",
   },
-  // {
-  //   name: "School",
-  //   resource: "school",
-  //   props: school,
-  //   permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
-  //   icon: "SchoolIcon",
-  // },
-  // {
-  //   name: "Location",
-  //   resource: "location",
-  //   props: location,
-  //   permissions: ["Admin", "State Admin"],
-  //   icon: "SchoolIcon",
-  // },
-  // {
-  //   name: "Grade Assessment",
-  //   resource: "grade_assessment",
-  //   props: gradeAssessment,
-  //   permissions: ["Admin", "State Admin"],
-  //   icon: "SchoolIcon",
-  // },
+  {
+    name: "School",
+    resource: "school",
+    props: school,
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin"],
+    icon: "SchoolIcon",
+  },
+  {
+    name: "Location",
+    resource: "location",
+    props: location,
+    permissions: ["Admin", "State Admin"],
+    icon: "SchoolIcon",
+  },
+  {
+    name: "Grade Assessment",
+    resource: "grade_assessment",
+    props: gradeAssessment,
+    permissions: ["Admin", "State Admin", "District Admin", "Block Admin", "School Admin"],
+    icon: "SchoolIcon",
+  },
   // {
   //   name: "Assessment",
   //   resource: "assessment",
