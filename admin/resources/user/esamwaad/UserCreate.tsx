@@ -170,7 +170,6 @@ const UserCreate = (props: any) => {
           onChange={(e) => setState({ ...state, mobile: e.target.value })}
           source="mobilePhone"
           label="Mobile Phone"
-          validate={inputConstraints.mobile}
         />
         <SelectInput
           onChange={(e) => setState({ ...state, roles: e.target.value })}

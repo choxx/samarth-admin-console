@@ -257,6 +257,7 @@ const StudentList = () => {
     <BooleanInput source="is_enabled" alwaysOn />,
     <TextInput label="UDISE" source="school#udise" key="search" />,
     <TextInput label="School Name" source="school#name@_ilike" key={"search"} />,
+    <TextInput label="Student Name" source="name@_ilike" key={"search"} />,
     <SelectArrayInput
       label="Grade"
       onChange={(e) => {
