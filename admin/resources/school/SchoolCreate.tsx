@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   BooleanInput,
   Create,
+  FormDataConsumer,
   maxLength,
   NumberField,
   NumberInput,
@@ -108,16 +109,16 @@ const SchoolCreate = () => {
       <SimpleForm>
         <TextInput source="name" validate={inputConstraints.fullName} />
         <NumberInput source="udise" validate={required("Please enter a valid UDISE")} />
-        <SelectInput label="District" source="location.data.district" onChange={(e: any) => {
+        {/* <SelectInput label="District" source="location.data.district" onChange={(e: any) => {
           setSelectedDistrict(e.target.value);
           setSelectedBlock('');
           setSelectedCluster('');
-        }} choices={districts} validate={inputConstraints.district} />
-        <SelectInput label="Block" source="location.data.block" onChange={(e) => {
+        }} choices={districts} validate={inputConstraints.district} /> */}
+        {/* <SelectInput label="Block" source="location.data.block" onChange={(e) => {
           setSelectedBlock(e.target.value);
           setSelectedCluster('');
         }} choices={blocks} validate={inputConstraints.block} />
-        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => setSelectedCluster(e.target.value)} choices={clusters} validate={inputConstraints.cluster} />
+        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => setSelectedCluster(e.target.value)} choices={clusters} validate={inputConstraints.cluster} /> */}
         <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
         <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
         <BooleanInput source="is_active" />
