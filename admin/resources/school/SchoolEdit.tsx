@@ -265,16 +265,16 @@ export const SchoolEdit = () => {
         />
         <FormDataConsumer>
           {({ formData }) => {
-            if (!selectedDistrict && formData.location.district)
-              setSelectedDistrict(formData.location.district)
-            if (!selectedBlock && formData.location.block)
-              setSelectedBlock(formData.location.block)
+            if (!selectedDistrict && formData?.location?.district)
+              setSelectedDistrict(formData?.location?.district)
+            if (!selectedBlock && formData?.location?.block)
+              setSelectedBlock(formData?.location?.block)
             if (schoolId != formData.id)
               setSchoolId(formData.id);
             if (!schoolUdise)
               setSchoolUdise(formData.udise);
-            if (formData.location.district != locationDetails?.district || formData.location.block != locationDetails?.block || formData.location.cluster != locationDetails?.cluster)
-              setLocationDetails({ ...locationDetails, district: formData.location.district, block: formData.location.block, cluster: formData.location.cluster })
+            if (formData?.location?.district != locationDetails?.district || formData?.location?.block != locationDetails?.block || formData?.location?.cluster != locationDetails?.cluster)
+              setLocationDetails({ ...locationDetails, district: formData?.location?.district, block: formData?.location?.block, cluster: formData?.location?.cluster })
             return <></>
           }}
         </FormDataConsumer>

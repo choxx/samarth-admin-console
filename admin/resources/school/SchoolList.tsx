@@ -59,14 +59,6 @@ const SchoolList = () => {
         return (
           <ListDataGridWithPermissions
             listProps={{
-              filter: {
-                location: {
-                  format: "hasura-raw-query",
-                  value: {
-                    district: { _in: districts.map((d: any) => d.id) },
-                  },
-                },
-              },
               filters: Filters,
             }}
             showExporter={true}
