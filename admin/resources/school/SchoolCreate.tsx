@@ -122,9 +122,9 @@ const SchoolCreate = () => {
         <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
         <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
         <BooleanInput source="is_active" />
-        <TextInput source="latitude" />
-        <TextInput source="longitude" />
-        <TextInput source="enroll_count" />
+        <NumberInput source="latitude" />
+        <NumberInput source="longitude" />
+        <NumberInput source="enroll_count" />
       </SimpleForm>
     </Create>
   );
