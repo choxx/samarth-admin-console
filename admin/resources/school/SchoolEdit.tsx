@@ -157,6 +157,7 @@ export const SchoolEdit = () => {
   );
   const onSuccess = () => {
     // Clearing school cache;
+    
     const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
     const token = userData?.user?.token;
     fetch(SCHOOL_CACHE_URL + `[${schoolUdise}]`, {
