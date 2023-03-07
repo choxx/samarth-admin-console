@@ -59,6 +59,8 @@ const GradeAssessmentList = () => {
       <TextField source="section" />
       <TextField source="school_id" />
       <TextField source="assessment.type" label="Assessment Type" />
+      <TextField source="assessment.assessment_type.name" label="Assessment Name" />
+      <TextField source="assessment.assessment_type.assessment_category.name" label="Assessment Category" />
       <TextField source="school.udise" label="UDISE" />
       <TextField source="school.location.district" label="District" />
       <TextField source="school.location.block" />
