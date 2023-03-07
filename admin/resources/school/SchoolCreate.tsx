@@ -96,7 +96,7 @@ const SchoolCreate = () => {
           notify(`School created successfully`, { type: 'success' });
           redirect(`/school`);
         } else if (schoolRes.errors) {
-          notify(`${schoolRes.errors[0].message}`, { type: 'error' });
+          notify(`${schoolRes?.errors?.[0]?.message}`, { type: 'error' });
         }
       }
     } else {
@@ -173,26 +173,26 @@ const SchoolCreate = () => {
   return (
     <Create mutationOptions={{ onSuccess, onError }}>
       <SimpleForm>
-        <TextInput source="name" validate={inputConstraints.fullName} onChange={e => setData((prevData: any) => { return { ...prevData, name: e.target.value } })} />
-        <NumberInput source="udise" validate={required("Please enter a valid UDISE")} onChange={e => setData((prevData: any) => { return { ...prevData, udise: e.target.value } })} />
+        <TextInput source="name" validate={inputConstraints.fullName} onChange={e => setData((prevData: any) => ({ ...prevData, name: e.target.value }))} />
+        <NumberInput source="udise" validate={required("Please enter a valid UDISE")} onChange={e => setData((prevData: any) => ({ ...prevData, udise: e.target.value }))} />
         <SelectInput label="District" source="location.data.district" onChange={(e: any) => {
           setSelectedDistrict(e.target.value);
           setSelectedBlock('');
           setSelectedCluster('');
-          setData((prevData: any) => { return { ...prevData, district: e.target.value } })
+          setData((prevData: any) => ({ ...prevData, district: e.target.value }))
         }} choices={districts} validate={inputConstraints.district} />
         <SelectInput label="Block" source="location.data.block" onChange={(e) => {
           setSelectedBlock(e.target.value);
           setSelectedCluster('');
-          setData((prevData: any) => { return { ...prevData, block: e.target.value } })
+          setData((prevData: any) => ({ ...prevData, block: e.target.value }))
         }} choices={blocks} validate={inputConstraints.block} />
-        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => { setSelectedCluster(e.target.value); setData((prevData: any) => { return { ...prevData, cluster: e.target.value } }) }} choices={clusters} validate={inputConstraints.cluster} />
-        <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} onChange={e => setData((prevData: any) => { return { ...prevData, session: e.target.value } })} />
-        <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} onChange={e => setData((prevData: any) => { return { ...prevData, type: e.target.value } })} />
-        <BooleanInput source="is_active" onChange={e => setData((prevData: any) => { return { ...prevData, is_active: e.target.value } })} />
-        <NumberInput source="latitude" onChange={e => setData((prevData: any) => { return { ...prevData, latitude: e.target.value } })} />
-        <NumberInput source="longitude" onChange={e => setData((prevData: any) => { return { ...prevData, longitude: e.target.value } })} />
-        <NumberInput source="enroll_count" onChange={e => setData((prevData: any) => { return { ...prevData, enroll_count: e.target.value } })} />
+        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => { setSelectedCluster(e.target.value); setData((prevData: any) => ({ ...prevData, cluster: e.target.value })) }} choices={clusters} validate={inputConstraints.cluster} />
+        <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} onChange={e => setData((prevData: any) => ({ ...prevData, session: e.target.value }))} />
+        <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} onChange={e => setData((prevData: any) => ({ ...prevData, type: e.target.value }))} />
+        <BooleanInput source="is_active" onChange={e => setData((prevData: any) => ({ ...prevData, is_active: e.target.value }))} />
+        <NumberInput source="latitude" onChange={e => setData((prevData: any) => ({ ...prevData, latitude: e.target.value }))} />
+        <NumberInput source="longitude" onChange={e => setData((prevData: any) => ({ ...prevData, longitude: e.target.value }))} />
+        <NumberInput source="enroll_count" onChange={e => setData((prevData: any) => ({ ...prevData, enroll_count: e.target.value }))} />
       </SimpleForm>
     </Create>
   );
