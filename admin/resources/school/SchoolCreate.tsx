@@ -50,7 +50,7 @@ const SchoolCreate = () => {
 
   const onError = async (err: any) => {
     console.log(err.toString())
-    if (err.toString() == 'HttpError: Uniqueness violation. duplicate key value violates unique constraint "location_pkey"') {
+    if (err.toString().includes('Uniqueness violation. duplicate key value violates unique constraint "location_pkey"')) {
       let locationRes: any = await clientGQL(`
         query locationQuery {
           location(where: {district: {_eq: "${data.district}"}, _and: {block: {_eq: "${data.block}"}, _and: {cluster: {_eq: "${data.cluster}"}}}}) {
