@@ -17,8 +17,16 @@ import {
 } from "react-admin";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
+import { clientGQL } from "../../api-clients/users-client";
 
 const SchoolCreate = () => {
+  const [data, setData] = useState<any>();
+
+  useEffect(() => {
+
+    return () => { setData(null) }
+  }, [])
+
   // Input Constraints
   const inputConstraints = {
     // userName: [required("Please provide username"), number("The username must be numeric")],
@@ -38,6 +46,63 @@ const SchoolCreate = () => {
   const onSuccess = () => {
     notify(`School added successfully`);
     redirect(`/school`);
+  };
+
+  const onError = async (err: any) => {
+    console.log(err.toString())
+    if (err.toString().includes('Uniqueness violation. duplicate key value violates unique constraint "location_pkey"')) {
+      let locationRes: any = await clientGQL(`
+        query locationQuery {
+          location(where: {district: {_eq: "${data.district}"}, _and: {block: {_eq: "${data.block}"}, _and: {cluster: {_eq: "${data.cluster}"}}}}) {
+            id
+          }
+        }
+      `)
+      let res = await locationRes.json();
+      if (res?.data?.location?.[0]?.id) {
+        let schoolRes: any = await clientGQL(`
+        mutation insert_school($objects: [school_insert_input!]!) {
+          data: insert_school(objects: $objects) {
+            returning {
+              enroll_count
+              id
+              is_active
+              latitude
+              longitude
+              location_id
+              name
+              session
+              type
+              udise
+              __typename
+            }
+            __typename
+          }
+        }
+        `, {
+          objects: {
+            enroll_count: data.enroll_count ? data.enroll_count : null,
+            is_active: data.is_active ? data.is_active : false,
+            latitude: data.latitude ? data.latitude : null,
+            longitude: data.longitude ? data.longitude : null,
+            location_id: res.data.location[0].id,
+            name: data.name ? data.name : null,
+            session: data.session ? data.session : null,
+            type: data.type ? data.type : null,
+            udise: data.udise ? data.udise : null,
+          }
+        })
+        schoolRes = await schoolRes.json();
+        if (schoolRes?.data?.data?.returning?.[0]) {
+          notify(`School created successfully`, { type: 'success' });
+          redirect(`/school`);
+        } else if (schoolRes.errors) {
+          notify(`${schoolRes?.errors?.[0]?.message}`, { type: 'error' });
+        }
+      }
+    } else {
+      notify(`Unable to create school: ${err.toString()}`, { type: 'error' });
+    }
   };
 
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -103,28 +168,32 @@ const SchoolCreate = () => {
     }).sort((a: any, b: any) => { return a.name < b.name ? -1 : 1 });;
   }, [selectedBlock, districtData]);
 
+  console.log(data)
+
 
   return (
-    <Create mutationOptions={{ onSuccess }}>
+    <Create mutationOptions={{ onSuccess, onError }}>
       <SimpleForm>
-        <TextInput source="name" validate={inputConstraints.fullName} />
-        <NumberInput source="udise" validate={required("Please enter a valid UDISE")} />
-        {/* <SelectInput label="District" source="location.data.district" onChange={(e: any) => {
+        <TextInput source="name" validate={inputConstraints.fullName} onChange={e => setData((prevData: any) => ({ ...prevData, name: e.target.value }))} />
+        <NumberInput source="udise" validate={required("Please enter a valid UDISE")} onChange={e => setData((prevData: any) => ({ ...prevData, udise: e.target.value }))} />
+        <SelectInput label="District" source="location.data.district" onChange={(e: any) => {
           setSelectedDistrict(e.target.value);
           setSelectedBlock('');
           setSelectedCluster('');
-        }} choices={districts} validate={inputConstraints.district} /> */}
-        {/* <SelectInput label="Block" source="location.data.block" onChange={(e) => {
+          setData((prevData: any) => ({ ...prevData, district: e.target.value }))
+        }} choices={districts} validate={inputConstraints.district} />
+        <SelectInput label="Block" source="location.data.block" onChange={(e) => {
           setSelectedBlock(e.target.value);
           setSelectedCluster('');
+          setData((prevData: any) => ({ ...prevData, block: e.target.value }))
         }} choices={blocks} validate={inputConstraints.block} />
-        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => setSelectedCluster(e.target.value)} choices={clusters} validate={inputConstraints.cluster} /> */}
-        <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} />
-        <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} />
-        <BooleanInput source="is_active" />
-        <NumberInput source="latitude" />
-        <NumberInput source="longitude" />
-        <NumberInput source="enroll_count" />
+        <SelectInput label="Cluster" source="location.data.cluster" onChange={(e) => { setSelectedCluster(e.target.value); setData((prevData: any) => ({ ...prevData, cluster: e.target.value })) }} choices={clusters} validate={inputConstraints.cluster} />
+        <SelectInput source="session" label="Session" choices={["S", "W"].map(el => { return { id: el, name: el } })} validate={inputConstraints.session} onChange={e => setData((prevData: any) => ({ ...prevData, session: e.target.value }))} />
+        <SelectInput source="type" label="Type" choices={["GPS", "GMS", "GHS", "GSSS"].map(el => { return { id: el, name: el } })} validate={inputConstraints.type} onChange={e => setData((prevData: any) => ({ ...prevData, type: e.target.value }))} />
+        <BooleanInput source="is_active" onChange={e => setData((prevData: any) => ({ ...prevData, is_active: e.target.value }))} />
+        <NumberInput source="latitude" onChange={e => setData((prevData: any) => ({ ...prevData, latitude: e.target.value }))} />
+        <NumberInput source="longitude" onChange={e => setData((prevData: any) => ({ ...prevData, longitude: e.target.value }))} />
+        <NumberInput source="enroll_count" onChange={e => setData((prevData: any) => ({ ...prevData, enroll_count: e.target.value }))} />
       </SimpleForm>
     </Create>
   );

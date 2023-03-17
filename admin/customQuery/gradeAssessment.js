@@ -5,6 +5,12 @@ export const EXTENDED_GRADE_ASSESSMENT_RECORD = gql`
   {    
     assessment {
       type
+      assessment_type {
+        name
+        assessment_category {
+          name
+        }
+      }
     }
     school {
         name
