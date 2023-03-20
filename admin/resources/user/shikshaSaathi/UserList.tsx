@@ -107,8 +107,10 @@ const UserList = () => {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
 
-  const [level, setUserLevel] = useState<any>(null)
+  const [level, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
+
+
   const [selectedDistrict, setSelectedDistrict] = useState(
     initialFilters?.district || ""
   );
@@ -255,9 +257,11 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    const roleData = await user.getUserRoleData()
+    let { roles: scope }: any = await user.getDecodedUserToken();
+    let { district, block } = await user.getUserRoleData();
 
-    if (roleData) console.log(roleData, "role data")
+    
+
 
 
     return (() => clearInterval(a))

@@ -1,9 +1,27 @@
 import jwt from "jsonwebtoken"
+
+interface SCOPES {
+    disrtrict: string,
+    block: string,
+    any: string,
+    admin: string,
+    school: string,
+    state: string
+}
 class UserService {
     user: any;
+    scope: SCOPES
 
     constructor() {
         this.user = JSON.parse(window.localStorage.getItem("userData") as any);
+        this.scope = {
+            disrtrict: "District Admin",
+            block: "Block Admin",
+            any: "Any",
+            admin: "Admin",
+            school: "School Admin",
+            state: "State Admin"
+        }
     }
 
     getUser = () => {
@@ -55,6 +73,27 @@ class UserService {
             let decoded = jwt.decode(token)
 
             if (decoded) return decoded
+
+        } catch (error) {
+            return false
+        }
+    }
+
+    getInfoForUserList = async () => {
+        try {
+            let { roles: scope }: any = await this.user.getDecodedUserToken();
+            let { district, block } = await this.user.getUserRoleData();
+
+            if (scope) {
+                switch (scope[0]) {
+                    case this.scope.disrtrict:
+                        return { district }
+                    case this.scope.block:
+                        return { district, block }
+                    default:
+                        return false
+                }
+            }
 
         } catch (error) {
             return false

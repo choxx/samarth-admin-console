@@ -2,21 +2,13 @@ import { client } from "../../api-clients/users-client";
 
 
 
-const _scopes = {
-  disrtrict: "District Admin",
-  block: "Block Admin",
-  any: "Any",
-  admin: "Admin",
-  school: "School Admin",
-  state: "State Admin"
-}
+
 
 const Applications: any = {
   e_samwaad_user: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
   shiksha_saathi_user: "1ae074db-32f3-4714-a150-cc8a370eafd1",
 };
 
-import jwt from "jsonwebtoken";
 import UserService from "../../utils/user.util";
 
 export const UPDATE_USER_BY_ID_QUERY = `
@@ -40,12 +32,15 @@ const dataProvider = {
 
 
 
+
+
+
     if (resource == "shiksha_saathi_user") {
       switch (scope[0]) {
-        case _scopes.disrtrict:
+        case user.scope.disrtrict:
           queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${district}`];
           break
-        case _scopes.block:
+        case user.scope.block:
           queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${block}`];
           break
         default:
