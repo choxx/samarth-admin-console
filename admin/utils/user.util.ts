@@ -79,17 +79,19 @@ class UserService {
         }
     }
 
-    getInfoForUserList = async () => {
+    getInfoForUserListResource = async () => {
         try {
-            let { roles: scope }: any = await this.user.getDecodedUserToken();
-            let { district, block } = await this.user.getUserRoleData();
+            let { roles: scope }: any = await this.getDecodedUserToken();
+            let { district, block } = await this.getUserRoleData();
+
+            console.log(scope, "scopes")
 
             if (scope) {
                 switch (scope[0]) {
                     case this.scope.disrtrict:
-                        return { district }
+                        return { district: [{ id: district, name: district }] }
                     case this.scope.block:
-                        return { district, block }
+                        return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
                     default:
                         return false
                 }

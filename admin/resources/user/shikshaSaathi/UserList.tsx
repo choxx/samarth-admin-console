@@ -107,7 +107,7 @@ const UserList = () => {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
 
-  const [level, setUserLevel] = useState<any>({ district: false, block: false });
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
 
 
@@ -205,7 +205,7 @@ const UserList = () => {
         setSelectedCluster(null);
       }}
       source="data.roleData.district"
-      choices={districts}
+      choices={userLevel?.district ? userLevel?.district : districts}
     />,
     <SelectInput
       label="Block"
@@ -215,7 +215,8 @@ const UserList = () => {
       }}
       value={selectedBlock}
       source="block"
-      choices={blocks}
+      choices={userLevel?.block ? userLevel?.block : blocks}
+
     />,
     // <SelectInput
     //   label="Cluster"
@@ -257,10 +258,27 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    let { roles: scope }: any = await user.getDecodedUserToken();
-    let { district, block } = await user.getUserRoleData();
+    let { district, block }: any = await user.getInfoForUserListResource()
 
-    
+    console.log({ district, block }, "from list")
+
+    if (district && block) {
+
+      setSelectedBlock(block)
+      setSelectedDistrict(district)
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      setSelectedDistrict(district)
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+
+    }
 
 
 
