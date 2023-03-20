@@ -1,4 +1,5 @@
 import { client, clientGQL } from "../../api-clients/users-client";
+import designaition_master from "../../role_designation_master.json"
 
 const Applications: any = {
   e_samwaad_user: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
@@ -20,17 +21,36 @@ const dataProvider = {
   ): Promise<any> => {
     let queryString = [`registrations.applicationId:${Applications[resource]}`];
     const userData: any = window.localStorage.getItem("userData");
-    const roleName: any = JSON.parse(userData)?.user?.user?.registrations[0]?.roles[0];
 
-    if (resource == "shiksha_saathi_user") {
-      switch (roleName) {
-        case "District Admin":
+
+    //  storing boolean  to validate resouce 
+    const resourceCompliment = resource == "shiksha_saathi_user"
+
+    // function to extract role from sheet privided by user geographic location 
+    const getRoleFromGeoGraphicLocation = async () => {
+      let roleName: any = await JSON.parse(userData)?.user?.user?.registrations[0]?.roles[0];
+      let scope = designaition_master.designation_list.filter(({ designation }) => designation === roleName)[0]?.scope
+      if (scope) return scope
+      return false;
+    }
+
+    if (resourceCompliment) {
+      let scope = await getRoleFromGeoGraphicLocation();
+      console.log(scope, "my scope")
+      switch (scope) {
+        case designaition_master.scopes.district:
           const userDistrict = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.district;
           queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${userDistrict}`];
           break
-        case "Block Admin":
+        case designaition_master.scopes.block:
           const userBlock = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.block;
           queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${userBlock}`];
+          break
+        case designaition_master.scopes.cluster:
+          const userCluster = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.cluster;
+          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.cluster: ${userCluster}`];
+          break
+        default:
           break
       }
     }

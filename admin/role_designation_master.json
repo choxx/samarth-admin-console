@@ -1,4 +1,5 @@
-[
+{
+  "designation_list": [
     {
       "designation": "BEEO",
       "scope": "Block"
@@ -79,4 +80,10 @@
       "designation": "Director Elementary Education",
       "scope": "State"
     }
-  ]
+  ],
+  "scopes": {
+    "district": "District",
+    "block": "Block",
+    "cluster": "Cluster"
+  }
+}
