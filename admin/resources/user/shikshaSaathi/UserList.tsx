@@ -3,18 +3,17 @@ import {
   NumberField,
   TextField,
   TextInput,
-  LinearProgress,
-  useGetOne,
   useDataProvider,
   SelectInput,
 } from "react-admin";
 
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as _ from "lodash";
 import { ListDataGridWithPermissions } from "../../../components/lists";
 import { designationLevels } from "../esamwaad/designation";
+import UserService from "../../../utils/user.util";
 
 const ApplicationId = "1ae074db-32f3-4714-a150-cc8a370eafd1";
 const DisplayRoles = (a: any) => {
@@ -99,29 +98,21 @@ const UserList = () => {
   // Hotfix to remove selected district when a filter is "closed".
   const [tempState, setTempState] = useState(false);
 
-  useEffect(() => {
-    const docFilters = document.getElementsByClassName("filter-field");
-    let de = false;
-    for (let i = 0; i < docFilters.length; i++) {
-      if (docFilters[i].getAttribute('data-source') == 'data.roleData.district')
-        de = true;
-    }
-    if (!de && selectedDistrict)
-      setSelectedDistrict("")
-  })
 
-  useEffect(() => {
-    setTimeout(() => setTempState(!tempState), 500)
-  })
+
+
   // *****************************************************************
   const location = useLocation();
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
+
+  const [level, setUserLevel] = useState<any>(null)
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
   const [selectedDistrict, setSelectedDistrict] = useState(
     initialFilters?.district || ""
   );
+
   const [selectedBlock, setSelectedBlock] = useState(
     initialFilters?.block || ""
   );
@@ -170,31 +161,32 @@ const UserList = () => {
     });
   }, [selectedDistrict, districtData]);
 
-  const clusters = useMemo(() => {
-    if (!districtData) {
-      return [];
-    }
-    if (!selectedBlock) {
-      return _.uniqBy(
-        districtData,
-        "cluster"
-      ).map((a) => {
-        return {
-          id: a.cluster,
-          name: a.cluster,
-        };
-      });
-    }
-    return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
-      "cluster"
-    ).map((a) => {
-      return {
-        id: a.cluster,
-        name: a.cluster,
-      };
-    });
-  }, [selectedBlock, districtData]);
+  // const clusters = useMemo(() => {
+  //   if (!districtData) {
+  //     return [];
+  //   }
+  //   if (!selectedBlock) {
+  //     return _.uniqBy(
+  //       districtData,
+  //       "cluster"
+  //     ).map((a) => {
+  //       return {
+  //         id: a.cluster,
+  //         name: a.cluster,
+  //       };
+  //     });
+  //   }
+  //   return _.uniqBy(
+  //     districtData.filter((d) => d.block === selectedBlock),
+  //     "cluster"
+  //   ).map((a) => {
+  //     return {
+  //       id: a.cluster,
+  //       name: a.cluster,
+  //     };
+  //   });
+  // }, [selectedBlock, districtData]);
+
   const rolesChoices: any = designationLevels;
   const Filters = [
     <TextInput source="username" alwaysOn />,
@@ -232,8 +224,27 @@ const UserList = () => {
     // />,
   ];
 
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
+
+
+
+
+
+
+
+  const forUseEffect = useCallback(async () => {
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'data.roleData.district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+
+    setTimeout(() => setTempState(!tempState), 500)
+
+
+
     const a = setInterval(() => {
       let x = document.getElementsByClassName('MuiMenuItem-gutters');
       for (let i = 0; i < x.length; i++) {
@@ -243,7 +254,20 @@ const UserList = () => {
       }
     }, 50);
 
+    let user = new UserService()
+    const roleData = await user.getUserRoleData()
+
+    if (roleData) console.log(roleData, "role data")
+
+
     return (() => clearInterval(a))
+
+  }, [])
+
+
+
+  useEffect(() => {
+    forUseEffect()
   }, [])
 
   return (

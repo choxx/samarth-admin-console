@@ -1,10 +1,23 @@
-import { client, clientGQL } from "../../api-clients/users-client";
-import designaition_master from "../../role_designation_master.json"
+import { client } from "../../api-clients/users-client";
+
+
+
+const _scopes = {
+  disrtrict: "District Admin",
+  block: "Block Admin",
+  any: "Any",
+  admin: "Admin",
+  school: "School Admin",
+  state: "State Admin"
+}
 
 const Applications: any = {
   e_samwaad_user: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
   shiksha_saathi_user: "1ae074db-32f3-4714-a150-cc8a370eafd1",
 };
+
+import jwt from "jsonwebtoken";
+import UserService from "../../utils/user.util";
 
 export const UPDATE_USER_BY_ID_QUERY = `
 mutation($object:teacher_set_input!, $id:uuid!){
@@ -20,35 +33,20 @@ const dataProvider = {
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
     let queryString = [`registrations.applicationId:${Applications[resource]}`];
-    const userData: any = window.localStorage.getItem("userData");
+    let user = new UserService();
+
+    let { roles: scope }: any = await user.getDecodedUserToken();
+    let { district, block } = await user.getUserRoleData();
 
 
-    //  storing boolean  to validate resouce 
-    const resourceCompliment = resource == "shiksha_saathi_user"
 
-    // function to extract role from sheet privided by user geographic location 
-    const getRoleFromGeoGraphicLocation = async () => {
-      let roleName: any = await JSON.parse(userData)?.user?.user?.registrations[0]?.roles[0];
-      let scope = designaition_master.designation_list.filter(({ designation }) => designation === roleName)[0]?.scope
-      if (scope) return scope
-      return false;
-    }
-
-    if (resourceCompliment) {
-      let scope = await getRoleFromGeoGraphicLocation();
-      console.log(scope, "my scope")
-      switch (scope) {
-        case designaition_master.scopes.district:
-          const userDistrict = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.district;
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${userDistrict}`];
+    if (resource == "shiksha_saathi_user") {
+      switch (scope[0]) {
+        case _scopes.disrtrict:
+          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${district}`];
           break
-        case designaition_master.scopes.block:
-          const userBlock = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.block;
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${userBlock}`];
-          break
-        case designaition_master.scopes.cluster:
-          const userCluster = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.cluster;
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.cluster: ${userCluster}`];
+        case _scopes.block:
+          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${block}`];
           break
         default:
           break

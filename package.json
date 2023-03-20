@@ -11,8 +11,10 @@
   "dependencies": {
     "@apollo/client": "^3.7.0",
     "@mui/icons-material": "^5.10.6",
+    "@types/jsonwebtoken": "^9.0.1",
     "graphql": "^16.6.0",
     "graphql-ast-types-browser": "^1.0.2",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "next": "12.2.5",
     "ra-data-graphql": "^4.3.0",
