@@ -258,9 +258,8 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    let { district, block }: any = await user.getInfoForUserListResource()
+    let { district, block }: any = await user.getInfoForUserListResource(user._applications.shiksha_saathi_user.name)
 
-    console.log({ district, block }, "from list")
 
     if (district && block) {
 

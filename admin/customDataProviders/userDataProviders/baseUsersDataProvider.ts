@@ -1,13 +1,11 @@
 import { client } from "../../api-clients/users-client";
+import { APPLICATIONS } from "../../utils/interfaces";
 
 
 
 
 
-const Applications: any = {
-  e_samwaad_user: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
-  shiksha_saathi_user: "1ae074db-32f3-4714-a150-cc8a370eafd1",
-};
+
 
 import UserService from "../../utils/user.util";
 
@@ -19,29 +17,27 @@ mutation($object:teacher_set_input!, $id:uuid!){
     }
   }
 }`;
+
+const user = new UserService();
+
 const dataProvider = {
   getList: async (
     resource: any,
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
-    let queryString = [`registrations.applicationId:${Applications[resource]}`];
-    let user = new UserService();
+    let queryString = [`registrations.applicationId:${resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id}`];
 
-    let { roles: scope }: any = await user.getDecodedUserToken();
-    let { district, block } = await user.getUserRoleData();
+    let { roles: scope }: any = user.getDecodedUserToken();
 
 
-
-
-
-
-    if (resource == "shiksha_saathi_user") {
+    if (resource == user._applications.shiksha_saathi_user.name) {
+      let { district, block }: any = await user.getUserRoleData(resource);
       switch (scope[0]) {
         case user.scope.disrtrict:
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${district}`];
+          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`];
           break
         case user.scope.block:
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${block}`];
+          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.block: ${block}`];
           break
         default:
           break
@@ -50,9 +46,9 @@ const dataProvider = {
 
     // Pass the UDISES as per Esamwaad Roles Access in the below array.
     // const UDISES = [2100600104, 110, 2080210301].join(" ");
-    if (resource == "e_samwaad_user") {
+    if (resource == user._applications.e_samwaad_user.name) {
       // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
-      queryString = [`registrations.applicationId:${Applications[resource]}`]
+      queryString = [`registrations.applicationId:${user._applications.e_samwaad_user.id}`]
     }
 
     if (filter && Object.keys(filter).length > 0) {
@@ -91,7 +87,7 @@ const dataProvider = {
       startRow: (page - 1) * perPage,
       numberOfResults: perPage,
       queryString: `(${queryString.join(") AND (")})`,
-      applicationId: Applications[resource],
+      applicationId: resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id,
     };
     const response = await client.get("/admin/searchUser", { params });
     if (response?.data?.result) {
