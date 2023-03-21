@@ -66,9 +66,7 @@ class UserService {
             if (Array.isArray(registrations)) {
                 registrations = await registrations.filter(({ applicationId }) => applicationId === this.hp_admin_console_id)[0];
                 let { data: { roleData } } = registrations
-
-
-                if (roleData ) return roleData
+                if (roleData) return roleData
             }
         } catch (error) {
             return false
@@ -90,10 +88,10 @@ class UserService {
 
     getInfoForUserListResource = async () => {
         try {
-            // let { roles: scope }: any = this.getDecodedUserToken();
-            let { district, block, role }: any = this.getUserRoleData();
+            let { roles: scope }: any = this.getDecodedUserToken();
+            let { district, block }: any = await this.getUserRoleData();
 
-            switch (role) {
+            switch (scope[0]) {
                 case this.scope.district:
                     return { district: [{ id: district, name: district }] }
                 case this.scope.block:
