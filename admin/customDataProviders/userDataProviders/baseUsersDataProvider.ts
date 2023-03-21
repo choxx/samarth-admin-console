@@ -33,7 +33,7 @@ const dataProvider = {
     if (resource == user._applications.shiksha_saathi_user.name) {
       let { district, block }: any = await user.getUserRoleData(resource);
       switch (scope[0]) {
-        case user.scope.disrtrict:
+        case user.scope.district:
           queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`];
           break
         case user.scope.block:

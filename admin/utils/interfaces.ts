@@ -1,5 +1,5 @@
 export interface USER_SCOPES {
-    disrtrict: string,
+    district: string,
     block: string,
     any: string,
     admin: string,

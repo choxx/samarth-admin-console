@@ -13,7 +13,7 @@ class UserService {
     constructor() {
         this.user = JSON.parse(window.localStorage.getItem("userData") as any);
         this.scope = {
-            disrtrict: "District Admin",
+            district: "District Admin",
             block: "Block Admin",
             any: "Any",
             admin: "Admin",
@@ -90,7 +90,7 @@ class UserService {
 
             if (scope) {
                 switch (scope[0]) {
-                    case this.scope.disrtrict:
+                    case this.scope.district:
                         return { district: [{ id: district, name: district }] }
                     case this.scope.block:
                         return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
