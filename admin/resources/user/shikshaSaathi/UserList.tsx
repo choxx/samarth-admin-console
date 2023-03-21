@@ -1,26 +1,19 @@
 import {
   FunctionField,
-  Datagrid,
-  List,
   NumberField,
   TextField,
   TextInput,
-  LinearProgress,
-  useGetOne,
   useDataProvider,
-  useRecordContext,
   SelectInput,
-  SavedQueriesList,
 } from "react-admin";
 
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as _ from "lodash";
 import { ListDataGridWithPermissions } from "../../../components/lists";
-import { ChangePasswordButton } from "../ChangePasswordButton";
-import { getLowerDesignationsChoices } from "../designation";
 import { designationLevels } from "../esamwaad/designation";
+import UserService from "../../../utils/user.util";
 
 const ApplicationId = "1ae074db-32f3-4714-a150-cc8a370eafd1";
 const DisplayRoles = (a: any) => {
@@ -51,43 +44,43 @@ const DisplayRoles = (a: any) => {
   });
 };
 
-const getLocationDataByRecord = (id: any) => {
-  const TEACHER = "teacher";
-  //@ts-ignore
-  const { data: teacher } = useGetOne("teacher", { user_id: id });
-  const { data: school } = useGetOne("school", {
-    //@ts-ignore
-    school_id: teacher?.school_id,
-  });
-  const { data: location } = useGetOne("location", {
-    //@ts-ignore
-    id: school?.location_id,
-  });
-  return location;
-};
-const getCorrespondingTeacherDistrict = (record: any) => {
-  const location = getLocationDataByRecord(record?.id);
+// const getLocationDataByRecord = (id: any) => {
+//   const TEACHER = "teacher";
+//   //@ts-ignore
+//   const { data: teacher } = useGetOne("teacher", { user_id: id });
+//   const { data: school } = useGetOne("school", {
+//     //@ts-ignore
+//     school_id: teacher?.school_id,
+//   });
+//   const { data: location } = useGetOne("location", {
+//     //@ts-ignore
+//     id: school?.location_id,
+//   });
+//   return location;
+// };
+// const getCorrespondingTeacherDistrict = (record: any) => {
+//   const location = getLocationDataByRecord(record?.id);
 
-  if (!location) return <LinearProgress />;
+//   if (!location) return <LinearProgress />;
 
-  return <TextField label="District" source="district" record={location} />;
-};
+//   return <TextField label="District" source="district" record={location} />;
+// };
 
-const getCorrespondingTeacherBlock = (record: any) => {
-  const location = getLocationDataByRecord(record?.id);
+// const getCorrespondingTeacherBlock = (record: any) => {
+//   const location = getLocationDataByRecord(record?.id);
 
-  if (!location) return <LinearProgress />;
+//   if (!location) return <LinearProgress />;
 
-  return <TextField label="Block" source="block" record={location} />;
-};
+//   return <TextField label="Block" source="block" record={location} />;
+// };
 
-const getCorrespondingTeacherCluster = (record: any) => {
-  const location = getLocationDataByRecord(record?.id);
+// const getCorrespondingTeacherCluster = (record: any) => {
+//   const location = getLocationDataByRecord(record?.id);
 
-  if (!location) return <LinearProgress />;
+//   if (!location) return <LinearProgress />;
 
-  return <TextField label="Cluster" source="cluster" record={location} />;
-};
+//   return <TextField label="Cluster" source="cluster" record={location} />;
+// };
 
 const UserList = () => {
   const dataProvider = useDataProvider();
@@ -105,29 +98,23 @@ const UserList = () => {
   // Hotfix to remove selected district when a filter is "closed".
   const [tempState, setTempState] = useState(false);
 
-  useEffect(() => {
-    const docFilters = document.getElementsByClassName("filter-field");
-    let de = false;
-    for (let i = 0; i < docFilters.length; i++) {
-      if (docFilters[i].getAttribute('data-source') == 'data.roleData.district')
-        de = true;
-    }
-    if (!de && selectedDistrict)
-      setSelectedDistrict("")
-  })
 
-  useEffect(() => {
-    setTimeout(() => setTempState(!tempState), 500)
-  })
+
+
   // *****************************************************************
   const location = useLocation();
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
+
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
+
+
   const [selectedDistrict, setSelectedDistrict] = useState(
     initialFilters?.district || ""
   );
+
   const [selectedBlock, setSelectedBlock] = useState(
     initialFilters?.block || ""
   );
@@ -176,31 +163,32 @@ const UserList = () => {
     });
   }, [selectedDistrict, districtData]);
 
-  const clusters = useMemo(() => {
-    if (!districtData) {
-      return [];
-    }
-    if (!selectedBlock) {
-      return _.uniqBy(
-        districtData,
-        "cluster"
-      ).map((a) => {
-        return {
-          id: a.cluster,
-          name: a.cluster,
-        };
-      });
-    }
-    return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
-      "cluster"
-    ).map((a) => {
-      return {
-        id: a.cluster,
-        name: a.cluster,
-      };
-    });
-  }, [selectedBlock, districtData]);
+  // const clusters = useMemo(() => {
+  //   if (!districtData) {
+  //     return [];
+  //   }
+  //   if (!selectedBlock) {
+  //     return _.uniqBy(
+  //       districtData,
+  //       "cluster"
+  //     ).map((a) => {
+  //       return {
+  //         id: a.cluster,
+  //         name: a.cluster,
+  //       };
+  //     });
+  //   }
+  //   return _.uniqBy(
+  //     districtData.filter((d) => d.block === selectedBlock),
+  //     "cluster"
+  //   ).map((a) => {
+  //     return {
+  //       id: a.cluster,
+  //       name: a.cluster,
+  //     };
+  //   });
+  // }, [selectedBlock, districtData]);
+
   const rolesChoices: any = designationLevels;
   const Filters = [
     <TextInput source="username" alwaysOn />,
@@ -217,7 +205,7 @@ const UserList = () => {
         setSelectedCluster(null);
       }}
       source="data.roleData.district"
-      choices={districts}
+      choices={userLevel?.district ? userLevel?.district : districts}
     />,
     <SelectInput
       label="Block"
@@ -227,7 +215,8 @@ const UserList = () => {
       }}
       value={selectedBlock}
       source="block"
-      choices={blocks}
+      choices={userLevel?.block ? userLevel?.block : blocks}
+
     />,
     // <SelectInput
     //   label="Cluster"
@@ -238,8 +227,27 @@ const UserList = () => {
     // />,
   ];
 
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
+
+
+
+
+
+
+
+  const forUseEffect = useCallback(async () => {
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'data.roleData.district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+
+    setTimeout(() => setTempState(!tempState), 500)
+
+
+
     const a = setInterval(() => {
       let x = document.getElementsByClassName('MuiMenuItem-gutters');
       for (let i = 0; i < x.length; i++) {
@@ -249,7 +257,35 @@ const UserList = () => {
       }
     }, 50);
 
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+
+    }
+
+
+
     return (() => clearInterval(a))
+
+  }, [])
+
+
+
+  useEffect(() => {
+    forUseEffect()
   }, [])
 
   return (

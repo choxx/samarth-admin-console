@@ -1,9 +1,13 @@
-import { client, clientGQL } from "../../api-clients/users-client";
+import { client } from "../../api-clients/users-client";
+import { APPLICATIONS } from "../../utils/interfaces";
 
-const Applications: any = {
-  e_samwaad_user: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
-  shiksha_saathi_user: "1ae074db-32f3-4714-a150-cc8a370eafd1",
-};
+
+
+
+
+
+
+import UserService from "../../utils/user.util";
 
 export const UPDATE_USER_BY_ID_QUERY = `
 mutation($object:teacher_set_input!, $id:uuid!){
@@ -13,33 +17,43 @@ mutation($object:teacher_set_input!, $id:uuid!){
     }
   }
 }`;
+
+
 const dataProvider = {
   getList: async (
     resource: any,
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
-    let queryString = [`registrations.applicationId:${Applications[resource]}`];
-    const userData: any = window.localStorage.getItem("userData");
-    const roleName: any = JSON.parse(userData)?.user?.user?.registrations[0]?.roles[0];
+    const user = new UserService();
+    let queryString = [`registrations.applicationId:${resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id}`];
 
-    if (resource == "shiksha_saathi_user") {
-      switch (roleName) {
-        case "District Admin":
-          const userDistrict = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.district;
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${userDistrict}`];
+    let { roles: scope }: any = user.getDecodedUserToken();
+
+    let compliment = {
+      shiksha_sathi: (resource == user._applications.shiksha_saathi_user.name) && (Array.isArray(scope)),
+      e_samwaad: (resource == user._applications.e_samwaad_user.name)
+    }
+
+
+    if (compliment.shiksha_sathi) {
+      let { district, block }: any = await user.getUserRoleData();
+      switch (scope[0]) {
+        case user.scope.district:
+          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`];
           break
-        case "Block Admin":
-          const userBlock = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.block;
-          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${userBlock}`];
+        case user.scope.block:
+          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.block: ${block}`];
+          break
+        default:
           break
       }
     }
 
     // Pass the UDISES as per Esamwaad Roles Access in the below array.
     // const UDISES = [2100600104, 110, 2080210301].join(" ");
-    if (resource == "e_samwaad_user") {
+    if (compliment.e_samwaad) {
       // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
-      queryString = [`registrations.applicationId:${Applications[resource]}`]
+      queryString = [`registrations.applicationId:${user._applications.e_samwaad_user.id}`]
     }
 
     if (filter && Object.keys(filter).length > 0) {
@@ -78,7 +92,7 @@ const dataProvider = {
       startRow: (page - 1) * perPage,
       numberOfResults: perPage,
       queryString: `(${queryString.join(") AND (")})`,
-      applicationId: Applications[resource],
+      applicationId: resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id,
     };
     const response = await client.get("/admin/searchUser", { params });
     if (response?.data?.result) {
