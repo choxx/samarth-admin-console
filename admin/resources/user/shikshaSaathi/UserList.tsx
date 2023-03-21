@@ -258,20 +258,17 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    let { district, block }: any = await user.getInfoForUserListResource(user._applications.shiksha_saathi_user.name)
+    let { district, block }: any = await user.getInfoForUserListResource()
 
 
     if (district && block) {
 
-      setSelectedBlock(block)
-      setSelectedDistrict(district)
       setUserLevel((prev: any) => ({
         ...prev,
         district,
         block
       }))
     } else {
-      setSelectedDistrict(district)
       setUserLevel((prev: any) => ({
         ...prev,
         district,

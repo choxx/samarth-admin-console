@@ -18,13 +18,13 @@ mutation($object:teacher_set_input!, $id:uuid!){
   }
 }`;
 
-const user = new UserService();
 
 const dataProvider = {
   getList: async (
     resource: any,
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
+    const user = new UserService();
     let queryString = [`registrations.applicationId:${resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id}`];
 
     let { roles: scope }: any = user.getDecodedUserToken();
@@ -36,7 +36,7 @@ const dataProvider = {
 
 
     if (compliment.shiksha_sathi) {
-      let { district, block }: any = await user.getUserRoleData(resource);
+      let { district, block }: any = await user.getUserRoleData();
       switch (scope[0]) {
         case user.scope.district:
           queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`];

@@ -5,10 +5,8 @@ import { APPLICATIONS, USER_SCOPES } from "./interfaces";
 class UserService {
     user: any;
     scope: USER_SCOPES
-    _applications: APPLICATIONS = {
-        e_samwaad_user: { id: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da", name: "e_samwaad_user" },
-        shiksha_saathi_user: { id: "1ae074db-32f3-4714-a150-cc8a370eafd1", name: "shiksha_saathi_user" },
-    };
+    _applications: APPLICATIONS;
+    hp_admin_console_id: string;
 
     constructor() {
         this.user = JSON.parse(window.localStorage.getItem("userData") as any);
@@ -20,6 +18,13 @@ class UserService {
             school: "School Admin",
             state: "State Admin"
         }
+
+        this._applications = {
+            e_samwaad_user: { id: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da", name: "e_samwaad_user" },
+            shiksha_saathi_user: { id: "1ae074db-32f3-4714-a150-cc8a370eafd1", name: "shiksha_saathi_user" },
+        }
+
+        this.hp_admin_console_id = "77638847-db34-4331-b369-5768fdfededd"
     }
 
     getUser = () => {
@@ -54,20 +59,20 @@ class UserService {
     }
 
 
-    getUserRoleData = (resource: string) => {
+    getUserRoleData = async () => {
         try {
             let { user: { user: { registrations } } } = this.user
-            switch (resource) {
-                case this._applications.shiksha_saathi_user.name:
-                    let { data: { roleData } } = registrations[0]
-                    if (roleData) return roleData
-                    break;
-                default:
-                    break;
-            }
 
+            if (Array.isArray(registrations)) {
+                registrations = await registrations.filter(({ applicationId }) => applicationId === this.hp_admin_console_id)[0];
+                let { data: { roleData } } = registrations
+
+
+                if (roleData ) return roleData
+            }
         } catch (error) {
             return false
+
         }
     }
 
@@ -83,20 +88,18 @@ class UserService {
         }
     }
 
-    getInfoForUserListResource = async (resource: string) => {
+    getInfoForUserListResource = async () => {
         try {
-            let { roles: scope }: any = this.getDecodedUserToken();
-            let { district, block } = await this.getUserRoleData(resource);
+            // let { roles: scope }: any = this.getDecodedUserToken();
+            let { district, block, role }: any = this.getUserRoleData();
 
-            if (scope) {
-                switch (scope[0]) {
-                    case this.scope.district:
-                        return { district: [{ id: district, name: district }] }
-                    case this.scope.block:
-                        return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
-                    default:
-                        return false
-                }
+            switch (role) {
+                case this.scope.district:
+                    return { district: [{ id: district, name: district }] }
+                case this.scope.block:
+                    return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
+                default:
+                    return false
             }
 
         } catch (error) {

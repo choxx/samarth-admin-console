@@ -8,7 +8,7 @@ const authProvider: AuthProvider = {
     return getToken(username, password);
   },
   logout: () => {
-    localStorage.removeItem("userData");
+    localStorage.clear();
     return Promise.resolve();
   },
   checkError: (error) => {
