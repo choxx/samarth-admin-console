@@ -29,8 +29,13 @@ const dataProvider = {
 
     let { roles: scope }: any = user.getDecodedUserToken();
 
+    let compliment = {
+      shiksha_sathi: (resource == user._applications.shiksha_saathi_user.name) && (Array.isArray(scope)),
+      e_samwaad: (resource == user._applications.e_samwaad_user.name)
+    }
 
-    if (resource == user._applications.shiksha_saathi_user.name) {
+
+    if (compliment.shiksha_sathi) {
       let { district, block }: any = await user.getUserRoleData(resource);
       switch (scope[0]) {
         case user.scope.district:
@@ -46,7 +51,7 @@ const dataProvider = {
 
     // Pass the UDISES as per Esamwaad Roles Access in the below array.
     // const UDISES = [2100600104, 110, 2080210301].join(" ");
-    if (resource == user._applications.e_samwaad_user.name) {
+    if (compliment.e_samwaad) {
       // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
       queryString = [`registrations.applicationId:${user._applications.e_samwaad_user.id}`]
     }
