@@ -88,8 +88,6 @@ class UserService {
             let { roles: scope }: any = this.getDecodedUserToken();
             let { district, block } = await this.getUserRoleData(resource);
 
-            console.log(scope, "scopes")
-
             if (scope) {
                 switch (scope[0]) {
                     case this.scope.disrtrict:
