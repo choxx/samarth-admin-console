@@ -259,9 +259,12 @@ const UserList = () => {
 
     let user = new UserService()
     let { district, block }: any = await user.getInfoForUserListResource()
+    console.log(district, "district")
+    console.log(block, "block")
 
 
     if (district && block) {
+
 
       setUserLevel((prev: any) => ({
         ...prev,
@@ -273,10 +276,7 @@ const UserList = () => {
         ...prev,
         district,
       }))
-
     }
-
-
 
     return (() => clearInterval(a))
 
