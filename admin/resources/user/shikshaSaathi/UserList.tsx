@@ -265,13 +265,15 @@ const UserList = () => {
 
     if (district && block) {
 
-
+      setSelectedBlock(block)
+      setSelectedDistrict(district)
       setUserLevel((prev: any) => ({
         ...prev,
         district,
         block
       }))
     } else {
+      setSelectedDistrict(district)
       setUserLevel((prev: any) => ({
         ...prev,
         district,
