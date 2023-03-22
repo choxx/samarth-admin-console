@@ -264,16 +264,21 @@ const UserList = () => {
 
 
     if (district && block) {
-
-      setSelectedBlock(block[0].name)
-      setSelectedDistrict(district[0].name)
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        setSelectedBlock(block[0].name)
+      }
       setUserLevel((prev: any) => ({
         ...prev,
         district,
         block
       }))
     } else {
-      setSelectedDistrict(district[0].name)
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
       setUserLevel((prev: any) => ({
         ...prev,
         district,
