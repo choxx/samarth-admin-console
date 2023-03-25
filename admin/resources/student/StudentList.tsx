@@ -416,6 +416,8 @@ const StudentList = () => {
       }))
     }
 
+    let filter = await user.createDefaultGeoFilterQuery("school", "a", null)
+    console.log(filter, "filyer")
 
     return (() => clearInterval(a))
   }, [])
@@ -427,14 +429,7 @@ const StudentList = () => {
 
   return (
     <List filters={Filters} exporter={exporter}
-      filter={{
-        school: {
-          format: "hasura-raw-query",
-          location: {
-            district: { _eq: "KULLU" },
-          }
-        },
-      }}
+      // filter={ }
       pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
@@ -447,8 +442,8 @@ const StudentList = () => {
         <BooleanField source="is_cwsn" label={"CWSN"} />
         <TextField source="gender" label={"Gender"} />
         <TextField source="school.location.district" label="District" />
-        {/* <TextField source="school.location.block" label="Block" />
-        <TextField source="school.location.cluster" label="Cluster" /> */}
+        <TextField source="school.location.block" label="Block" />
+        <TextField source="school.location.cluster" label="Cluster" />
         <BooleanField source="is_enabled" label={"Enabled"} />
         <EditButtonWrapper />
       </Datagrid>

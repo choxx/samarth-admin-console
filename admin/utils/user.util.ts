@@ -120,6 +120,43 @@ class UserService {
             return false
         }
     }
+
+    createDefaultGeoFilterQuery = async (tabeleName: string, district: any, block: any) => {
+        try {
+            {
+                let filter = {
+                    [tabeleName]: {
+                        format: "hasura-raw-query",
+                        location: {
+                        }
+                    }
+                }
+                if (district && block) {
+                    filter[tabeleName].location = {
+                        district: {
+                            "_eq": district
+                        },
+                        block: {
+                            "_eq": block
+                        }
+                    }
+                } else {
+                    filter[tabeleName].location = {
+                        district: {
+                            "_eq": district
+                        },
+                    }
+
+                }
+
+                if (filter) return filter
+            }
+        } catch (error) {
+
+            return false
+
+        }
+    }
 }
 
 
