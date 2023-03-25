@@ -95,9 +95,6 @@ export const buildGetListVariables: BuildGetListVariables =
                     delete obj[key].format
                     let value = obj[key];
                     filter = { [key]: value }
-
-                    console.log(filter, "fileter")
-                    console.log(value, "value")
                 }
 
             } else {
