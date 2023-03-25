@@ -89,7 +89,7 @@ class UserService {
     getInfoForUserListResource = async () => {
         try {
             let { roles: scope }: any = this.getDecodedUserToken();
-            let { district, block }: any = await this.getUserRoleData();
+            let { district, block, cluster }: any = await this.getUserRoleData();
 
             switch (scope[0]) {
                 case this.scope.district:
@@ -98,6 +98,22 @@ class UserService {
                     return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
                 default:
                     return false
+            }
+
+        } catch (error) {
+            return false
+        }
+    }
+
+    getInfoForUserRoleListResource = async () => {
+        try {
+            let { district, block, cluster }: any = await this.getUserRoleData();
+            if (district && block && cluster) {
+                return { district: [{ id: district, name: district }], block: [{ id: block, name: block }], cluster: [{ id: cluster, name: cluster }] }
+            } else if (district && block) {
+                return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
+            } else {
+                return { district: [{ id: district, name: district }] }
             }
 
         } catch (error) {

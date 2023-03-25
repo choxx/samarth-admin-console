@@ -7,7 +7,6 @@ import {
   FunctionField
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
-import { Chip } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";

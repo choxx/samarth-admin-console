@@ -19,3 +19,10 @@ export interface APPLICATIONS {
         name: string
     },
 };
+
+
+export interface FILTERUSERLEVEL {
+    district: any,
+    block: any,
+    cluster: any
+}
