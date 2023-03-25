@@ -1,5 +1,5 @@
 import {
-  TextField, ReferenceField, useRecordContext, NumberInput, useDataProvider, SelectInput, TextInput, downloadCSV,
+  TextField, useRecordContext, NumberInput, useDataProvider, SelectInput, TextInput, downloadCSV,
   useNotify,
   TopToolbar,
   FilterButton,
@@ -14,6 +14,7 @@ import { clientGQL } from "../../api-clients/users-client";
 
 //@ts-ignore don't rearrange this line :)
 import jsonExport from 'jsonexport/dist';
+
 
 const statusChoices = [
   {
@@ -66,10 +67,6 @@ const ColoredChipField = (props: any) => {
     >
       {data?.name}
     </span>
-    // <Chip
-    //   style={{ backgroundColor: data?.color, color: "#FFF" }}
-    //   label={data?.name}
-    // />
   );
 };
 

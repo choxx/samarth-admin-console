@@ -65,7 +65,6 @@ const StudentList = () => {
   );
 
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false, cluster: false });
-  const [defaultFilterValues, setDefaultFilterValues] = useState<any>({})
   const dataProvider = useDataProvider();
 
   const {
@@ -394,13 +393,9 @@ const StudentList = () => {
 
 
 
-    if (district && block) {
-      if (Array.isArray(district)) {
-        setSelectedDistrict(district[0].name)
-      }
-      if (Array.isArray(block)) {
-        setSelectedBlock(block[0].name)
-      }
+    if (Array.isArray(district) && Array.isArray(block)) {
+      setSelectedDistrict(district[0].name)
+      setSelectedBlock(block[0].name)
       setUserLevel((prev: any) => ({
         ...prev,
         district,
@@ -424,18 +419,28 @@ const StudentList = () => {
     forUseEffect()
   }, [forUseEffect])
 
-
   return (
     <List filters={Filters} exporter={exporter}
-      filter={{
-        school: {
-          format: "hasura-raw-query",
-          location: {
-            district: { _eq: "KULLU" },
-            cluster: { _eq: "GSSS BHUNTAR" }
+      filter={selectedDistrict && selectedBlock ? (
+        {
+          school: {
+            format: "hasura-raw-query",
+            location: {
+              district: { _eq: selectedDistrict },
+              block: { _eq: selectedBlock },
+            }
           }
-        },
-      }}
+        }
+      ) : (
+        {
+          school: {
+            format: "hasura-raw-query",
+            location: {
+              district: { _eq: selectedDistrict },
+            }
+          }
+        }
+      )}
       pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
