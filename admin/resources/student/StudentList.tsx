@@ -65,6 +65,7 @@ const StudentList = () => {
   );
 
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false, cluster: false });
+  const [defaultFilterValues, setDefaultFilterValues] = useState<any>({})
   const dataProvider = useDataProvider();
 
   const {
@@ -396,6 +397,16 @@ const StudentList = () => {
     if (Array.isArray(district) && Array.isArray(block)) {
       setSelectedDistrict(district[0].name)
       setSelectedBlock(block[0].name)
+      setDefaultFilterValues({
+        school: {
+          format: "hasura-raw-query",
+          location: {
+            district: { _eq: String(district[0].name) },
+            block: { _eq: String(block[0].name) },
+          }
+        },
+      })
+
       setUserLevel((prev: any) => ({
         ...prev,
         district,
@@ -404,6 +415,14 @@ const StudentList = () => {
     } else {
       if (Array.isArray(district)) {
         setSelectedDistrict(district[0].name)
+        setDefaultFilterValues({
+          school: {
+            format: "hasura-raw-query",
+            location: {
+              district: { _eq: district[0].name },
+            }
+          },
+        })
       }
       setUserLevel((prev: any) => ({
         ...prev,
@@ -418,6 +437,7 @@ const StudentList = () => {
   useEffect(() => {
     forUseEffect()
   }, [forUseEffect])
+
 
   return (
     <List filters={Filters} exporter={exporter}
@@ -437,6 +457,7 @@ const StudentList = () => {
             format: "hasura-raw-query",
             location: {
               district: { _eq: selectedDistrict },
+              block: { _eq: selectedBlock },
             }
           }
         }
