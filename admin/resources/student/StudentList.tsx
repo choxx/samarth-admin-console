@@ -1,17 +1,22 @@
 import {
   ExportButton,
   FilterButton,
+  Labeled,
   NumberInput,
   Pagination,
+  ReferenceInput,
+  SearchInput,
   SelectArrayInput,
+  ShowButton,
   TopToolbar,
   useDataProvider,
+  useListContext,
   downloadCSV,
   useNotify,
   BooleanInput
 } from "react-admin";
 
-// @ts-ignore don't rearrange this line :)
+//@ts-ignore don't rearrange this line :)
 import jsonExport from 'jsonexport/dist';
 
 import {
@@ -19,17 +24,18 @@ import {
   Datagrid,
   List,
   NumberField,
+  ReferenceField,
   TextField,
   TextInput,
   SelectInput,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
+import { isBoolean } from "lodash";
 import EditButtonWrapper from "../../components/styleWrappers/EditButtonWrapper";
 import { streams_choices } from "./StudentStreams";
-import UserService from "../../utils/user.util";
 
 
 const StudentList = () => {
@@ -64,8 +70,6 @@ const StudentList = () => {
     initialFilters?.block || ""
   );
 
-  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false, cluster: false });
-  const [defaultFilterValues, setDefaultFilterValues] = useState<any>({})
   const dataProvider = useDataProvider();
 
   const {
@@ -88,7 +92,22 @@ const StudentList = () => {
     })
   );
 
+  // Hotfix to remove selected district when a filter is "closed".
+  // const [tempState, setTempState] = useState(false);
+  useEffect(() => {
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+  })
 
+  // useEffect(() => {
+  //   setTimeout(() => setTempState(!tempState), 500)
+  // })
 
   const districtData = useMemo(() => {
     return _districtData?.data;
@@ -310,14 +329,12 @@ const StudentList = () => {
       choices={gender}
       isRequired={true}
     />,
-    <SelectInput label="District" source="school#location#district" choices={userLevel?.district ? userLevel?.district : districts}
-
+    <SelectInput label="District" source="school#location#district" choices={districts}
       onChange={(e: any) => {
         setSelectedDistrict(e.target.value);
         setSelectedBlock(null);
       }} />,
-    <SelectInput label="Block" source="school#location#block"
-      choices={userLevel?.block ? userLevel?.block : blocks}
+    <SelectInput label="Block" source="school#location#block" choices={blocks}
       onChange={(e: any) => {
         setSelectedBlock(e.target.value);
       }} />,
@@ -334,8 +351,19 @@ const StudentList = () => {
       <ExportButton maxResults={30000} />
     </TopToolbar>
   );
+  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+  useEffect(() => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
 
-
+    return (() => clearInterval(a))
+  }, [])
   const notify = useNotify();
   const exporter = (records: any) => {
     const recordsForExports = records.map((rec: any) => {
@@ -363,94 +391,11 @@ const StudentList = () => {
   };
 
 
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-
-  const forUseEffect = useCallback(async () => {
-    const a = setInterval(() => {
-      let x = document.getElementsByClassName('MuiMenuItem-gutters');
-      for (let i = 0; i < x.length; i++) {
-        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
-          x[i].parentElement?.removeChild(x[i]);
-        }
-      }
-    }, 50);
-
-
-    // Hotfix to remove selected district when a filter is "closed".
-    // const [tempState, setTempState] = useState(false);
-    const docFilters = document.getElementsByClassName("filter-field");
-    let de = false;
-    for (let i = 0; i < docFilters.length; i++) {
-      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
-        de = true;
-    }
-    if (!de && selectedDistrict) {
-      setSelectedDistrict("")
-    }
-
-
-    let user = new UserService()
-    let { district, block }: any = await user.getInfoForUserListResource()
-
-
-
-    if (Array.isArray(district) && Array.isArray(block)) {
-      setSelectedDistrict(district[0].name)
-      setSelectedBlock(block[0].name)
-      setDefaultFilterValues({
-        school: {
-          format: "hasura-raw-query",
-          location: {
-            district: { _eq: String(district[0].name) },
-            block: { _eq: String(block[0].name) },
-          }
-        },
-      })
-
-      setUserLevel((prev: any) => ({
-        ...prev,
-        district,
-        block
-      }))
-    } else {
-      if (Array.isArray(district)) {
-        setSelectedDistrict(district[0].name)
-        setDefaultFilterValues({
-          school: {
-            format: "hasura-raw-query",
-            location: {
-              district: { _eq: district[0].name },
-            }
-          },
-        })
-      }
-      setUserLevel((prev: any) => ({
-        ...prev,
-        district,
-      }))
-    }
-
-
-    return (() => clearInterval(a))
-  }, [])
-
-  useEffect(() => {
-    forUseEffect()
-  }, [forUseEffect])
-
-
-  return selectedDistrict && selectedBlock ? (
-    <List filters={Filters} exporter={exporter}
-      filter={{
-        school: {
-          format: "hasura-raw-query",
-          location: {
-            district: { _eq: selectedDistrict },
-            block: { _eq: selectedBlock },
-          }
-        }
-      }}
-      pagination={<StudentPagination />} actions={<ListActions />}>
+  return (
+    <List filters={Filters} exporter={exporter} filter={{
+      // "school#location#district": "MANDI",
+      "school#location#block": "DRANG-2"
+    }} pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="name" />
@@ -468,34 +413,6 @@ const StudentList = () => {
         <EditButtonWrapper />
       </Datagrid>
     </List>
-  ) : (
-    <List filters={Filters} exporter={exporter}
-      filter={{
-        school: {
-          format: "hasura-raw-query",
-          location: {
-            district: { _eq: selectedDistrict },
-          }
-        }
-      }}
-      pagination={<StudentPagination />} actions={<ListActions />}>
-      <Datagrid bulkActionButtons={false}>
-        <TextField source="id" />
-        <TextField source="name" />
-        <TextField source="father_name" />
-        <TextField source="school.name" label="School" />
-        <TextField source="school.udise" label="UDISE" />
-        <NumberField source="grade_number" />
-        <TextField source="stream_tag" />
-        <BooleanField source="is_cwsn" label={"CWSN"} />
-        <TextField source="gender" label={"Gender"} />
-        <TextField source="school.location.district" label="District" />
-        <TextField source="school.location.block" label="Block" />
-        <TextField source="school.location.cluster" label="Cluster" />
-        <BooleanField source="is_enabled" label={"Enabled"} />
-        <EditButtonWrapper />
-      </Datagrid>
-    </List>
-  )
+  );
 };
 export default StudentList;

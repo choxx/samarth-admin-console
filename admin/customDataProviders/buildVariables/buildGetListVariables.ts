@@ -86,17 +86,7 @@ export const buildGetListVariables: BuildGetListVariables =
                     : obj[key];
                 filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: value });
             } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
-
-                // temporary solution for time being but definietly need to figure out a new approach
-                let value = obj[key].value;
-                if (value) {
-                    filter = { [key]: value };
-                } else {
-                    delete obj[key].format
-                    let value = obj[key];
-                    filter = { [key]: value }
-                }
-
+                filter = { [key]: obj[key].value || {} };
             } else {
                 let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
                 let operator;
