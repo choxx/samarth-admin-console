@@ -439,29 +439,17 @@ const StudentList = () => {
   }, [forUseEffect])
 
 
-  return (
+  return selectedDistrict && selectedBlock ? (
     <List filters={Filters} exporter={exporter}
-      filter={selectedDistrict && selectedBlock ? (
-        {
-          school: {
-            format: "hasura-raw-query",
-            location: {
-              district: { _eq: selectedDistrict },
-              block: { _eq: selectedBlock },
-            }
+      filter={{
+        school: {
+          format: "hasura-raw-query",
+          location: {
+            district: { _eq: selectedDistrict },
+            block: { _eq: selectedBlock },
           }
         }
-      ) : (
-        {
-          school: {
-            format: "hasura-raw-query",
-            location: {
-              district: { _eq: selectedDistrict },
-              block: { _eq: selectedBlock },
-            }
-          }
-        }
-      )}
+      }}
       pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
@@ -480,6 +468,34 @@ const StudentList = () => {
         <EditButtonWrapper />
       </Datagrid>
     </List>
-  );
+  ) : (
+    <List filters={Filters} exporter={exporter}
+      filter={{
+        school: {
+          format: "hasura-raw-query",
+          location: {
+            district: { _eq: selectedDistrict },
+          }
+        }
+      }}
+      pagination={<StudentPagination />} actions={<ListActions />}>
+      <Datagrid bulkActionButtons={false}>
+        <TextField source="id" />
+        <TextField source="name" />
+        <TextField source="father_name" />
+        <TextField source="school.name" label="School" />
+        <TextField source="school.udise" label="UDISE" />
+        <NumberField source="grade_number" />
+        <TextField source="stream_tag" />
+        <BooleanField source="is_cwsn" label={"CWSN"} />
+        <TextField source="gender" label={"Gender"} />
+        <TextField source="school.location.district" label="District" />
+        <TextField source="school.location.block" label="Block" />
+        <TextField source="school.location.cluster" label="Cluster" />
+        <BooleanField source="is_enabled" label={"Enabled"} />
+        <EditButtonWrapper />
+      </Datagrid>
+    </List>
+  )
 };
 export default StudentList;
