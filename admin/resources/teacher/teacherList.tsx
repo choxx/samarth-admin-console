@@ -78,6 +78,7 @@ const TeacherList = () => {
   const [selectedBlock, setSelectedBlock] = useState("");
   const [designationChoices, setDesignationChoices] = useState([]);
   const [teacherData, setTeacherData] = useState<any>({});
+  const [filterObj, setFilterObj] = useState<any>({})
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false, cluster: false });
 
   let promiseMap = useRef<any>({});
@@ -276,15 +277,18 @@ const TeacherList = () => {
       setSelectedDistrict("")
     }
 
-
     let user = new UserService()
     let { district, block }: any = await user.getInfoForUserListResource()
 
 
-
-    if (Array.isArray(district) && Array.isArray(block)) {
-      setSelectedDistrict(district[0].name)
-      setSelectedBlock(block[0].name)
+    if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        setFilterObj({ "school#location#block": block[0].name })
+        setSelectedBlock(block[0].name)
+      }
       setUserLevel((prev: any) => ({
         ...prev,
         district,
@@ -293,6 +297,8 @@ const TeacherList = () => {
     } else {
       if (Array.isArray(district)) {
         setSelectedDistrict(district[0].name)
+        setFilterObj({ "school#location#district": district[0].name })
+
       }
       setUserLevel((prev: any) => ({
         ...prev,
@@ -305,7 +311,7 @@ const TeacherList = () => {
 
   useEffect(() => {
     forUseEffect()
-  }, [])
+  }, [forUseEffect])
 
   return (
     <ListDataGridWithPermissions dataGridProps={{
@@ -319,7 +325,7 @@ const TeacherList = () => {
           }
         }
       }
-    }} showExporter={true} listProps={{ filters: Filters, actions: <ListActions />, 'exporter': exporter }}>
+    }} showExporter={true} listProps={{ filters: Filters, actions: <ListActions />, 'exporter': exporter, filter: filterObj }}>
       {/* <TextField source="id" /> */}
       < FunctionField
         label={"Name"}

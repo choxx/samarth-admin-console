@@ -30,12 +30,13 @@ import {
   SelectInput,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { isBoolean } from "lodash";
 import EditButtonWrapper from "../../components/styleWrappers/EditButtonWrapper";
 import { streams_choices } from "./StudentStreams";
+import UserService from "../../utils/user.util";
 
 
 const StudentList = () => {
@@ -70,6 +71,10 @@ const StudentList = () => {
     initialFilters?.block || ""
   );
 
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
+
+
   const dataProvider = useDataProvider();
 
   const {
@@ -92,18 +97,8 @@ const StudentList = () => {
     })
   );
 
-  // Hotfix to remove selected district when a filter is "closed".
-  // const [tempState, setTempState] = useState(false);
-  useEffect(() => {
-    const docFilters = document.getElementsByClassName("filter-field");
-    let de = false;
-    for (let i = 0; i < docFilters.length; i++) {
-      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
-        de = true;
-    }
-    if (!de && selectedDistrict)
-      setSelectedDistrict("")
-  })
+
+
 
   // useEffect(() => {
   //   setTimeout(() => setTempState(!tempState), 500)
@@ -329,12 +324,12 @@ const StudentList = () => {
       choices={gender}
       isRequired={true}
     />,
-    <SelectInput label="District" source="school#location#district" choices={districts}
+    <SelectInput label="District" source="school#location#district" choices={userLevel.district ? userLevel.district : districts}
       onChange={(e: any) => {
         setSelectedDistrict(e.target.value);
         setSelectedBlock(null);
       }} />,
-    <SelectInput label="Block" source="school#location#block" choices={blocks}
+    <SelectInput label="Block" source="school#location#block" choices={userLevel.block ? userLevel.block : blocks}
       onChange={(e: any) => {
         setSelectedBlock(e.target.value);
       }} />,
@@ -351,19 +346,7 @@ const StudentList = () => {
       <ExportButton maxResults={30000} />
     </TopToolbar>
   );
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
-    const a = setInterval(() => {
-      let x = document.getElementsByClassName('MuiMenuItem-gutters');
-      for (let i = 0; i < x.length; i++) {
-        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
-          x[i].parentElement?.removeChild(x[i]);
-        }
-      }
-    }, 50);
 
-    return (() => clearInterval(a))
-  }, [])
   const notify = useNotify();
   const exporter = (records: any) => {
     const recordsForExports = records.map((rec: any) => {
@@ -391,11 +374,73 @@ const StudentList = () => {
   };
 
 
+  const handleIntialRendering = useCallback(async () => {
+    // Hotfix to remove selected district when a filter is "closed".
+    // const [tempState, setTempState] = useState(false);
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
+        de = true;
+    }
+    if (!de && selectedDistrict)
+      setSelectedDistrict("")
+
+    // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        console.log({ "school#location#block": block[0].name }, "filter")
+        setFilterObj({ "school#location#block": block[0].name })
+        setSelectedBlock(block[0].name)
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+        console.log({ "school#location#district": district[0].name }, "filter")
+        setFilterObj({ "school#location#district": district[0].name })
+
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+
+    return (() => clearInterval(a))
+  }, [])
+
+
+  useEffect(() => {
+    handleIntialRendering()
+  }, [handleIntialRendering])
+
+
+
+
+
   return (
-    <List filters={Filters} exporter={exporter} filter={{
-      // "school#location#district": "MANDI",
-      "school#location#block": "DRANG-2"
-    }} pagination={<StudentPagination />} actions={<ListActions />}>
+    <List filters={Filters} exporter={exporter} filter={filterObj} pagination={<StudentPagination />} actions={<ListActions />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="name" />
@@ -406,9 +451,9 @@ const StudentList = () => {
         <TextField source="stream_tag" />
         <BooleanField source="is_cwsn" label={"CWSN"} />
         <TextField source="gender" label={"Gender"} />
-        <TextField source="school.location.district" label="District" />
+        {/* <TextField source="school.location.district" label="District" />
         <TextField source="school.location.block" label="Block" />
-        <TextField source="school.location.cluster" label="Cluster" />
+        <TextField source="school.location.cluster" label="Cluster" /> */}
         <BooleanField source="is_enabled" label={"Enabled"} />
         <EditButtonWrapper />
       </Datagrid>
