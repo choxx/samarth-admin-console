@@ -122,7 +122,7 @@ const LocationList = () => {
       }}
       value={selectedDistrict}
       source="district"
-      choices={districts}
+      choices={userLevel.district ? userLevel.district : districts}
     />,
     <SelectInput
       label="Block"
@@ -132,7 +132,7 @@ const LocationList = () => {
       }}
       value={selectedBlock}
       source="block"
-      choices={blocks}
+      choices={userLevel.block ? userLevel.block : blocks}
     />,
     <SelectInput
       label="Cluster"
