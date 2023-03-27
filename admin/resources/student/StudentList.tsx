@@ -405,7 +405,6 @@ const StudentList = () => {
         setSelectedDistrict(district[0].name)
       }
       if (Array.isArray(block)) {
-        console.log({ "school#location#block": block[0].name }, "filter")
         setFilterObj({ "school#location#block": block[0].name })
         setSelectedBlock(block[0].name)
       }
@@ -417,7 +416,6 @@ const StudentList = () => {
     } else {
       if (Array.isArray(district)) {
         setSelectedDistrict(district[0].name)
-        console.log({ "school#location#district": district[0].name }, "filter")
         setFilterObj({ "school#location#district": district[0].name })
 
       }
