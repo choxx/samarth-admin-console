@@ -22,8 +22,8 @@ const SPLIT_OPERATION = '@';
 export const buildGetListVariables: BuildGetListVariables =
     () => (resource, _, params) => {
         const result: any = {};
-        let {filter: filterObj = {}} = params;
-        const {customFilters = []} = params;
+        let { filter: filterObj = {} } = params;
+        const { customFilters = [] } = params;
 
         /**
          * Nested entities are parsed by CRA, which returns a nested object
@@ -69,24 +69,24 @@ export const buildGetListVariables: BuildGetListVariables =
         const makeNestedFilter = (obj: any, operation: string): any => {
             if (Object.keys(obj).length === 1) {
                 const [key] = Object.keys(obj);
-                return {[key]: makeNestedFilter(obj[key], operation)};
+                return { [key]: makeNestedFilter(obj[key], operation) };
             } else {
-                return {[operation]: obj};
+                return { [operation]: obj };
             }
         };
 
         const filterReducer = (obj: any) => (acc: any, key: any) => {
             let filter;
             if (key === 'ids') {
-                filter = {id: {_in: obj['ids']}};
+                filter = { id: { _in: obj['ids'] } };
             } else if (Array.isArray(obj[key])) {
                 let [keyName, operation = '_in', opPath] = key.split(SPLIT_OPERATION);
                 let value = opPath
                     ? set({}, opPath.split(SPLIT_TOKEN), obj[key])
                     : obj[key];
-                filter = set({}, keyName.split(SPLIT_TOKEN), {[operation]: value});
+                filter = set({}, keyName.split(SPLIT_TOKEN), { [operation]: value });
             } else if (obj[key] && obj[key].format === 'hasura-raw-query') {
-                filter = {[key]: obj[key].value || {}};
+                filter = { [key]: obj[key].value || {} };
             } else {
                 let [keyName, operation = ''] = key.split(SPLIT_OPERATION);
                 let operator;
@@ -135,7 +135,7 @@ export const buildGetListVariables: BuildGetListVariables =
 
         result['where'] = {
             _and: andFilters,
-            ...(orFilters.length && {_or: orFilters}),
+            ...(orFilters.length && { _or: orFilters }),
         };
 
         if (params.pagination) {
@@ -145,7 +145,7 @@ export const buildGetListVariables: BuildGetListVariables =
         }
 
         if (params.sort) {
-            const {field, order} = params.sort;
+            const { field, order } = params.sort;
             const hasMultiSort =
                 field.includes(MULTI_SORT_TOKEN) || order.includes(MULTI_SORT_TOKEN);
             if (hasMultiSort) {
@@ -156,8 +156,7 @@ export const buildGetListVariables: BuildGetListVariables =
 
                 if (fields.length !== orders.length) {
                     throw new Error(
-                        `The ${
-                            resource.type.name
+                        `The ${resource.type.name
                         } list must have an order value for each sort field. Sort fields are "${fields.join(
                             ','
                         )}" but sort orders are "${orders.join(',')}"`

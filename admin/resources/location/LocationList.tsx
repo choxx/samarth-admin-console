@@ -7,16 +7,19 @@ import {
   useListContext,
 } from "react-admin";
 import { useLocation } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { ListDataGridWithPermissions } from "../../components/lists";
+import UserService from "../../utils/user.util";
 
 const LocationList = () => {
   const location = useLocation();
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
   const [selectedDistrict, setSelectedDistrict] = useState(
     initialFilters?.district || ""
@@ -119,7 +122,7 @@ const LocationList = () => {
       }}
       value={selectedDistrict}
       source="district"
-      choices={districts}
+      choices={userLevel.district ? userLevel.district : districts}
     />,
     <SelectInput
       label="Block"
@@ -129,7 +132,7 @@ const LocationList = () => {
       }}
       value={selectedBlock}
       source="block"
-      choices={blocks}
+      choices={userLevel.block ? userLevel.block : blocks}
     />,
     <SelectInput
       label="Cluster"
@@ -139,8 +142,10 @@ const LocationList = () => {
       choices={clusters}
     />
   ];
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
+
+
+  const handleInitialRendering = useCallback(async () => {
+    // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
     const a = setInterval(() => {
       let x = document.getElementsByClassName('MuiMenuItem-gutters');
       for (let i = 0; i < x.length; i++) {
@@ -150,12 +155,44 @@ const LocationList = () => {
       }
     }, 50);
 
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        setFilterObj({ "block": block[0].name })
+        setSelectedBlock(block[0].name)
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+        setFilterObj({ "district": district[0].name })
+
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+
     return (() => clearInterval(a))
   }, [])
+  useEffect(() => {
+    handleInitialRendering()
+  }, [handleInitialRendering])
 
   return (
     <ListDataGridWithPermissions
-      listProps={{ filters: Filters, exporter: false }}
+      listProps={{ filters: Filters, exporter: false, filter: filterObj }}
     >
       <TextField source="id" />
       <TextField source="district" />

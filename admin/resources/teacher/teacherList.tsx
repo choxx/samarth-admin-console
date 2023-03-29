@@ -1,5 +1,5 @@
 import {
-  TextField, ReferenceField, useRecordContext, NumberInput, useDataProvider, SelectInput, TextInput, downloadCSV,
+  TextField, useRecordContext, NumberInput, useDataProvider, SelectInput, TextInput, downloadCSV,
   useNotify,
   TopToolbar,
   FilterButton,
@@ -7,14 +7,15 @@ import {
   FunctionField
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
-import { Chip } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import * as _ from "lodash";
 import { clientGQL } from "../../api-clients/users-client";
 
 //@ts-ignore don't rearrange this line :)
 import jsonExport from 'jsonexport/dist';
+import UserService from "../../utils/user.util";
+
 
 const statusChoices = [
   {
@@ -67,10 +68,6 @@ const ColoredChipField = (props: any) => {
     >
       {data?.name}
     </span>
-    // <Chip
-    //   style={{ backgroundColor: data?.color, color: "#FFF" }}
-    //   label={data?.name}
-    // />
   );
 };
 
@@ -81,6 +78,9 @@ const TeacherList = () => {
   const [selectedBlock, setSelectedBlock] = useState("");
   const [designationChoices, setDesignationChoices] = useState([]);
   const [teacherData, setTeacherData] = useState<any>({});
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false, cluster: false });
+
   let promiseMap = useRef<any>({});
 
   const {
@@ -106,23 +106,8 @@ const TeacherList = () => {
       setDesignationChoices(res.data.teacher.map((el: any) => { return { id: el.designation, name: el.designation } }))
   }
 
-  useEffect(() => { getDesignationOptions() }, [])
 
-  // Hotfix to remove selected district when a filter is "closed".
-  // const [tempState, setTempState] = useState(false);
-  useEffect(() => {
-    const docFilters = document.getElementsByClassName("filter-field");
-    let de = false;
-    let be = false;
-    for (let i = 0; i < docFilters.length; i++) {
-      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
-        de = true;
-      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
-        be = true;
-    }
-    if (!de && selectedDistrict)
-      setSelectedDistrict("")
-  })
+
 
   const districtData = useMemo(() => {
     return _districtData?.data;
@@ -194,18 +179,7 @@ const TeacherList = () => {
 
 
   // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
-    const a = setInterval(() => {
-      let x = document.getElementsByClassName('MuiMenuItem-gutters');
-      for (let i = 0; i < x.length; i++) {
-        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
-          x[i].parentElement?.removeChild(x[i]);
-        }
-      }
-    }, 50);
 
-    return (() => clearInterval(a))
-  }, [])
 
   const notify = useNotify();
 
@@ -234,11 +208,11 @@ const TeacherList = () => {
 
   const Filters = [
     <NumberInput source="school#udise" label="UDISE" />,
-    <SelectInput label="District" source="school#location#district" choices={districts}
+    <SelectInput label="District" source="school#location#district" choices={userLevel?.district ? userLevel?.district : districts}
       onChange={(e: any) => {
         setSelectedDistrict(e.target.value);
       }} />,
-    <SelectInput label="Block" source="school#location#block" choices={blocks}
+    <SelectInput label="Block" source="school#location#block" choices={userLevel?.block ? userLevel?.block : blocks}
       onChange={(e: any) => {
         setSelectedBlock(e.target.value);
       }} />,
@@ -274,10 +248,86 @@ const TeacherList = () => {
       })
   }
 
+
+
+  const forUseEffect = useCallback(async () => {
+    const a = setInterval(() => {
+      let x = document.getElementsByClassName('MuiMenuItem-gutters');
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].textContent == 'Save current query...' || x[i].textContent == 'Remove all filters') {
+          x[i].parentElement?.removeChild(x[i]);
+        }
+      }
+    }, 50);
+
+    getDesignationOptions()
+
+    // Hotfix to remove selected district when a filter is "closed".
+    // const [tempState, setTempState] = useState(false);
+    const docFilters = document.getElementsByClassName("filter-field");
+    let de = false;
+    let be = false;
+    for (let i = 0; i < docFilters.length; i++) {
+      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
+        de = true;
+      if (docFilters[i].getAttribute('data-source') == 'school#location#district')
+        be = true;
+    }
+    if (!de && selectedDistrict) {
+      setSelectedDistrict("")
+    }
+
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        setFilterObj({ "school#location#block": block[0].name })
+        setSelectedBlock(block[0].name)
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+        setFilterObj({ "school#location#district": district[0].name })
+
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+
+    return (() => clearInterval(a))
+  }, [])
+
+  useEffect(() => {
+    forUseEffect()
+  }, [forUseEffect])
+
   return (
-    <ListDataGridWithPermissions dataGridProps={{ rowClick: "show" }} showExporter={true} listProps={{ filters: Filters, actions: <ListActions />, 'exporter': exporter }}>
+    <ListDataGridWithPermissions dataGridProps={{
+      rowClick: "show", filter: {
+        teacher: {
+          school: {
+            format: "hasura-raw-query",
+            location: {
+              district: { _eq: selectedDistrict },
+            }
+          }
+        }
+      }
+    }} showExporter={true} listProps={{ filters: Filters, actions: <ListActions />, 'exporter': exporter, filter: filterObj }}>
       {/* <TextField source="id" /> */}
-      <FunctionField
+      < FunctionField
         label={"Name"}
         render={(record: any) => {
           if (!promiseMap.current[record.user_id])
@@ -286,18 +336,18 @@ const TeacherList = () => {
             return <span>{teacherData?.[record.user_id]?.name || "----------------"}</span>
         }}
       />
-      <FunctionField
+      < FunctionField
         label={"Mobile"}
         render={(record: any) => {
           return <span>{teacherData?.[record.user_id]?.mobile || "----------------"}</span>
         }}
       />
-      <TextField source="school.name" />
+      < TextField source="school.name" />
       <TextField source="school.udise" />
       <TextField label="Mode of employment" source="employment" />
       <TextField label="Designation" source="designation" />
       <ColoredChipField label="Account Status" source="account_status" />
-    </ListDataGridWithPermissions>
+    </ListDataGridWithPermissions >
   );
 };
 export default TeacherList;

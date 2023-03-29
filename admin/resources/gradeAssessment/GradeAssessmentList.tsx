@@ -14,27 +14,29 @@ import {
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { useQuery } from "react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import _ from "lodash";
 import { assessmentTypeChoices, gradeNumberChoices } from "../../utils/InputChoicesHelper";
 import { getLocationDetails } from "../../utils/LocationDetailsHelper";
+import UserService from "../../utils/user.util";
 
 const GradeAssessmentList = () => {
 
   const { districts, blocks, clusters } = getLocationDetails();
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
 
   const Filters = [
     <TextInput label="UDISE" source="school#udise" key={"search"} alwaysOn />,
     <SelectInput label="Grade Number" source="grade_number" key={"search"} choices={gradeNumberChoices} />,
     <SelectInput source="assessment#type" label="Assessment Type" choices={assessmentTypeChoices} />,
-    <SelectInput source="school#location#district" label="District" choices={districts} />,
-    <SelectInput source="school#location#block" label="Block" choices={blocks} />,
+    <SelectInput source="school#location#district" label="District" choices={userLevel.district ? userLevel.district : districts} />,
+    <SelectInput source="school#location#block" label="Block" choices={userLevel.block ? userLevel.block : blocks} />,
     <SelectInput source="school#location#cluster" label="Cluster" choices={clusters} />
   ];
-
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
+  const handleInitialRender = useCallback(async () => {
+    // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
     const a = setInterval(() => {
       let x = document.getElementsByClassName('MuiMenuItem-gutters');
       for (let i = 0; i < x.length; i++) {
@@ -44,13 +46,40 @@ const GradeAssessmentList = () => {
       }
     }, 50);
 
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+      if (Array.isArray(block)) {
+        setFilterObj({ "school#location#block": block[0].name })
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setFilterObj({ "school#location#district": district[0].name })
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+
     return (() => clearInterval(a))
   }, [])
+
+  useEffect(() => {
+    handleInitialRender()
+  }, [handleInitialRender])
 
   return (
     <ListDataGridWithPermissions
       dataGridProps={{ rowClick: "show" }}
-      listProps={{ filters: Filters }}
+      listProps={{ filters: Filters, filter: filterObj }}
       withDelete={<BulkDeleteButton />}
     >
       <TextField source="id" />
