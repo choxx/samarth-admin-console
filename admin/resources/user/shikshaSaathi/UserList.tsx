@@ -103,11 +103,12 @@ const UserList = () => {
 
   // *****************************************************************
   const location = useLocation();
+
+
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
-
-  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
 
 
@@ -163,31 +164,31 @@ const UserList = () => {
     });
   }, [selectedDistrict, districtData]);
 
-  // const clusters = useMemo(() => {
-  //   if (!districtData) {
-  //     return [];
-  //   }
-  //   if (!selectedBlock) {
-  //     return _.uniqBy(
-  //       districtData,
-  //       "cluster"
-  //     ).map((a) => {
-  //       return {
-  //         id: a.cluster,
-  //         name: a.cluster,
-  //       };
-  //     });
-  //   }
-  //   return _.uniqBy(
-  //     districtData.filter((d) => d.block === selectedBlock),
-  //     "cluster"
-  //   ).map((a) => {
-  //     return {
-  //       id: a.cluster,
-  //       name: a.cluster,
-  //     };
-  //   });
-  // }, [selectedBlock, districtData]);
+  const clusters = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedBlock) {
+      return _.uniqBy(
+        districtData,
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+    return _.uniqBy(
+      districtData.filter((d) => d.block === selectedBlock),
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData]);
 
   const rolesChoices: any = designationLevels;
   const Filters = [
@@ -218,13 +219,13 @@ const UserList = () => {
       choices={userLevel?.block ? userLevel?.block : blocks}
 
     />,
-    // <SelectInput
-    //   label="Cluster"
-    //   onChange={(e) => setSelectedCluster(e.target.value)}
-    //   value={selectedCluster}
-    //   source="cluster"
-    //   choices={clusters}
-    // />,
+    <SelectInput
+      label="Cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="cluster"
+      choices={clusters}
+    />,
   ];
 
 
@@ -284,7 +285,6 @@ const UserList = () => {
     }
 
     return (() => clearInterval(a))
-
   }, [])
 
 
