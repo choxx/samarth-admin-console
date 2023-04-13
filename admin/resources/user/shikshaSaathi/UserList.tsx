@@ -168,9 +168,9 @@ const UserList = () => {
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === selectedDistrict),
         "cluster"
       ).map((a) => {
         return {
@@ -259,7 +259,9 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    let { district, block }: any = await user.getInfoForUserListResource()
+    let { district, block, cluster }: any = await user.getInfoForUserListResource()
+
+    console.log(cluster)
 
 
     if (district && block) {

@@ -66,6 +66,7 @@ class UserService {
             if (Array.isArray(registrations)) {
                 registrations = await registrations.filter(({ applicationId }) => applicationId === this.hp_admin_console_id)[0];
                 let { data: { roleData } } = registrations
+                console.log(roleData, "roledata")
                 if (roleData) return roleData
             }
         } catch (error) {
@@ -91,12 +92,14 @@ class UserService {
             let { roles: scope }: any = this.getDecodedUserToken();
             let { district, block, cluster }: any = await this.getUserRoleData();
 
+
             switch (scope[0]) {
                 case this.scope.district:
                     return { district: [{ id: district, name: district }] }
                 case this.scope.block:
                     return { district: [{ id: district, name: district }], block: [{ id: block, name: block }] }
                 default:
+                    // if (cluster) return { district: [{ id: district, name: district }], block: [{ id: block, name: block }], cluster: [{ id: block, name: block }] }
                     return false
             }
 
