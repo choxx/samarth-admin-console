@@ -126,6 +126,19 @@ const SchoolMappingList = () => {
     if (!selectedBlock || !districtData) {
       return [];
     }
+
+    if (selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"

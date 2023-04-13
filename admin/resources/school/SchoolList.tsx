@@ -74,6 +74,7 @@ const SchoolList = () => {
         };
       });
     }
+
     return _.uniqBy(
       districtData.filter((d) => d.district === selectedDistrict),
       "block"
@@ -89,9 +90,9 @@ const SchoolList = () => {
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === selectedDistrict),
         "cluster"
       ).map((a) => {
         return {

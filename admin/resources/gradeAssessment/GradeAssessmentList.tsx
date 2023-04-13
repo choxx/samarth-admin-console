@@ -100,9 +100,9 @@ const GradeAssessmentList = () => {
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === selectedDistrict),
         "cluster"
       ).map((a) => {
         return {

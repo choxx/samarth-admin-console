@@ -62,7 +62,7 @@ const LocationForm = () => {
     if (!districtData) {
       return [];
     }
-    if(!selectedDistrict){
+    if (!selectedDistrict) {
       return _.uniqBy(
         districtData,
         "block"
@@ -88,9 +88,9 @@ const LocationForm = () => {
     if (!districtData) {
       return [];
     }
-    if(!selectedBlock){
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === selectedDistrict),
         "cluster"
       ).map((a) => {
         return {
@@ -113,26 +113,26 @@ const LocationForm = () => {
   return (
     <>
       <span>Location Details</span>
-        <ReferenceInput source="id" reference="location">
-          <SelectInput disabled optionText={"id"} />
-        </ReferenceInput>
+      <ReferenceInput source="id" reference="location">
+        <SelectInput disabled optionText={"id"} />
+      </ReferenceInput>
 
-        <SelectInput
-          label="District"
-          onChange={(e) => {
-            // const nam: any = districtData?.filter((item) => {
-            //   return e.target.value === item.district;
-            // });
+      <SelectInput
+        label="District"
+        onChange={(e) => {
+          // const nam: any = districtData?.filter((item) => {
+          //   return e.target.value === item.district;
+          // });
 
           setSelectedDistrict(e.target.value);
-          }}
-          value={selectedDistrict}
-          source="district"
-          choices={districts}
-          validate={[required("Please select a district")]}
-        />
-        <TextInput source="block" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Block with appropriate name with aplhabets only.")]}/>
-        <TextInput source="cluster" validate={[required(),regex(/^[A-Za-z][A-Za-z ]*$/,"Please Fill the Cluster with appropriate name with aplhabets only.")]}/>
+        }}
+        value={selectedDistrict}
+        source="district"
+        choices={districts}
+        validate={[required("Please select a district")]}
+      />
+      <TextInput source="block" validate={[required(), regex(/^[A-Za-z][A-Za-z ]*$/, "Please Fill the Block with appropriate name with aplhabets only.")]} />
+      <TextInput source="cluster" validate={[required(), regex(/^[A-Za-z][A-Za-z ]*$/, "Please Fill the Cluster with appropriate name with aplhabets only.")]} />
     </>
   );
 };
