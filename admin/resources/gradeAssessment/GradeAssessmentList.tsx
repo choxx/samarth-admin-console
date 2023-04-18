@@ -23,9 +23,107 @@ import UserService from "../../utils/user.util";
 
 const GradeAssessmentList = () => {
 
-  const { districts, blocks, clusters } = getLocationDetails();
   const [filterObj, setFilterObj] = useState<any>({})
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
+
+  const params: any = new Proxy(new URLSearchParams(location.search), {
+    get: (searchParams, prop) => searchParams.get(prop as string),
+  });
+  const initialFilters = params.filter ? JSON.parse(params.filter) : null;
+
+
+  const [selectedDistrict, setSelectedDistrict] = useState(
+    initialFilters?.district || ""
+  );
+
+  const [selectedBlock, setSelectedBlock] = useState(
+    initialFilters?.block || ""
+  );
+  const [selectedCluster, setSelectedCluster] = useState(
+    initialFilters?.cluster || ""
+  );
+
+  const dataProvider = useDataProvider();
+  const {
+    data: _districtData,
+    isLoading,
+    error,
+  } = useQuery(["location", "getList", {}], () =>
+    dataProvider.getList("location", {
+      pagination: { perPage: 10000, page: 1 },
+      sort: { field: "id", order: "asc" },
+      filter: {},
+    })
+  );
+
+  const districtData = useMemo(() => {
+    return _districtData?.data;
+  }, [_districtData]);
+
+  const districts = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    return _.uniqBy(districtData, "district").map((a) => {
+      return {
+        id: a.district,
+        name: a.district,
+      };
+    });
+  }, [districtData]);
+  const blocks = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedDistrict) {
+      return _.uniqBy(
+        districtData,
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
+    return _.uniqBy(
+      districtData.filter((d) => d.district === selectedDistrict),
+      "block"
+    ).map((a) => {
+      return {
+        id: a.block,
+        name: a.block,
+      };
+    });
+  }, [selectedDistrict, districtData]);
+
+  const clusters = useMemo(() => {
+
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+    return _.uniqBy(
+      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData, selectedDistrict]);
+
 
   const Filters = [
     <TextInput label="UDISE" source="school#udise" key={"search"} alwaysOn />,

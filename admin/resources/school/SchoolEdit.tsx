@@ -120,9 +120,33 @@ export const SchoolEdit = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
-    if (!selectedBlock || !districtData) {
+    if (!districtData) {
       return [];
     }
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"
@@ -132,7 +156,7 @@ export const SchoolEdit = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   // Input Constraints
   const inputConstraints = {
@@ -157,7 +181,7 @@ export const SchoolEdit = () => {
   );
   const onSuccess = () => {
     // Clearing school cache;
-    
+
     const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
     const token = userData?.user?.token;
     fetch(SCHOOL_CACHE_URL + `[${schoolUdise}]`, {

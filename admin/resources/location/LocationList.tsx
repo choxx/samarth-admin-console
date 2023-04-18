@@ -86,6 +86,7 @@ const LocationList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
+
     if (!districtData) {
       return [];
     }
@@ -100,8 +101,21 @@ const LocationList = () => {
         };
       });
     }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
       "cluster"
     ).map((a) => {
       return {
@@ -109,7 +123,7 @@ const LocationList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const Filters = [
     <SelectInput

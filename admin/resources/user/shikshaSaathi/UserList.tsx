@@ -163,31 +163,44 @@ const UserList = () => {
     });
   }, [selectedDistrict, districtData]);
 
-  // const clusters = useMemo(() => {
-  //   if (!districtData) {
-  //     return [];
-  //   }
-  //   if (!selectedBlock) {
-  //     return _.uniqBy(
-  //       districtData,
-  //       "cluster"
-  //     ).map((a) => {
-  //       return {
-  //         id: a.cluster,
-  //         name: a.cluster,
-  //       };
-  //     });
-  //   }
-  //   return _.uniqBy(
-  //     districtData.filter((d) => d.block === selectedBlock),
-  //     "cluster"
-  //   ).map((a) => {
-  //     return {
-  //       id: a.cluster,
-  //       name: a.cluster,
-  //     };
-  //   });
-  // }, [selectedBlock, districtData]);
+  const clusters = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+    return _.uniqBy(
+      districtData.filter((d) => d.block === selectedBlock),
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const rolesChoices: any = designationLevels;
   const Filters = [

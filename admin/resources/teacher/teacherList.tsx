@@ -151,10 +151,11 @@ const TeacherList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
+
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
         districtData,
         "cluster"
@@ -166,7 +167,7 @@ const TeacherList = () => {
       });
     }
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
       "cluster"
     ).map((a) => {
       return {
@@ -174,7 +175,7 @@ const TeacherList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
 
 

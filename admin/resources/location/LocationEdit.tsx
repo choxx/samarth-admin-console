@@ -99,6 +99,19 @@ const LocationForm = () => {
         };
       });
     }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"
@@ -108,7 +121,7 @@ const LocationForm = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   return (
     <>

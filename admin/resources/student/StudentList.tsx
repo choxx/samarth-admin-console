@@ -146,6 +146,7 @@ const StudentList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
+
     if (!districtData) {
       return [];
     }
@@ -160,8 +161,21 @@ const StudentList = () => {
         };
       });
     }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
       "cluster"
     ).map((a) => {
       return {
@@ -169,7 +183,7 @@ const StudentList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
 
   const studentData = useMemo(() => {

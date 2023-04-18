@@ -123,11 +123,23 @@ const SchoolMappingList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
-    if (!selectedBlock || !districtData) {
+
+    if (!districtData) {
       return [];
     }
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
       "cluster"
     ).map((a) => {
       return {
@@ -135,7 +147,7 @@ const SchoolMappingList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const quarterChoices = [
     { id: 1, name: 1 },
