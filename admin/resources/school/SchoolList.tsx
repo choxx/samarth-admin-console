@@ -60,13 +60,15 @@ const SchoolList = () => {
       };
     });
   }, [districtData]);
+
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];
     }
-    if (!selectedDistrict) {
+
+    if (userLevel.district && !userLevel.block)
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
         "block"
       ).map((a) => {
         return {
@@ -74,10 +76,9 @@ const SchoolList = () => {
           name: a.block,
         };
       });
-    }
 
     return _.uniqBy(
-      districtData.filter((d) => d.district === selectedDistrict),
+      districtData,
       "block"
     ).map((a) => {
       return {
@@ -88,24 +89,15 @@ const SchoolList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
+
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock && selectedDistrict) {
-      return _.uniqBy(
-        districtData.filter((d) => d.district === selectedDistrict),
-        "cluster"
-      ).map((a) => {
-        return {
-          id: a.cluster,
-          name: a.cluster,
-        };
-      });
-    }
 
-    if (selectedBlock) {
+
+    if (userLevel.district && !userLevel.block)
       return _.uniqBy(
-        districtData.filter((d) => d.block === selectedBlock),
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
         "cluster"
       ).map((a) => {
         return {
@@ -113,10 +105,21 @@ const SchoolList = () => {
           name: a.cluster,
         };
       });
-    }
+
+
+    if (userLevel.district && userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
 
     return _.uniqBy(
-      districtData.filter((d) => (d.block === selectedBlock) || (d.district === selectedDistrict)),
+      districtData,
       "cluster"
     ).map((a) => {
       return {
