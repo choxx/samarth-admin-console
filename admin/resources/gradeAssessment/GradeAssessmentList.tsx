@@ -22,18 +22,7 @@ import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import UserService from "../../utils/user.util";
 
 const GradeAssessmentList = () => {
-  const dataProvider = useDataProvider();
-  const {
-    data: _districtData,
-    isLoading,
-    error,
-  } = useQuery(["location", "getList", {}], () =>
-    dataProvider.getList("location", {
-      pagination: { perPage: 10000, page: 1 },
-      sort: { field: "id", order: "asc" },
-      filter: {},
-    })
-  );
+
 
   const [filterObj, setFilterObj] = useState<any>({})
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
@@ -89,10 +78,11 @@ const GradeAssessmentList = () => {
       return [];
     }
 
-    if (userLevel.district && !userLevel.block)
+    if (userLevel.district && !userLevel.block) {
       return _.uniqBy(
-        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
-  
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name), "block")
+    }
+
 
     return _.uniqBy(
       districtData,
@@ -147,7 +137,7 @@ const GradeAssessmentList = () => {
         name: a.cluster,
       };
     });
-ssssssssssssssssssssssss  }, [selectedBlock, districtData, selectedDistrict]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
 
 
