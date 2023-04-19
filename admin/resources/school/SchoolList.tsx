@@ -12,6 +12,7 @@ import UserService from "../../utils/user.util";
 import { useQuery } from "react-query";
 import * as _ from "lodash"
 
+
 const SchoolList = () => {
 
   const params: any = new Proxy(new URLSearchParams(location.search), {
@@ -69,6 +70,7 @@ const SchoolList = () => {
     if (userLevel.district && !userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
         "block"
       ).map((a) => {
         return {
@@ -79,6 +81,7 @@ const SchoolList = () => {
 
     return _.uniqBy(
       districtData,
+
       "block"
     ).map((a) => {
       return {
@@ -110,6 +113,7 @@ const SchoolList = () => {
     if (userLevel.district && userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
@@ -120,6 +124,7 @@ const SchoolList = () => {
 
     return _.uniqBy(
       districtData,
+
       "cluster"
     ).map((a) => {
       return {
@@ -127,7 +132,8 @@ const SchoolList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData, selectedDistrict]);
+ssssssssssssssssssssssssssssssssssssssssss  }, [selectedBlock, districtData, selectedDistrict]);
+
 
   const [filterObj, setFilterObj] = useState<any>({})
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
@@ -152,9 +158,34 @@ const SchoolList = () => {
     <SelectInput label="Type" source="type" choices={typeChoice} />,
     <SelectInput label="Session" source="session" choices={sessionChoices} />,
     <SelectInput label="Active" source="is_active" choices={activeChoices} />,
-    <SelectInput label="District" source="location#district" choices={userLevel.district ? userLevel.district : districts} />,
-    <SelectInput label="Block" source="location#block" choices={userLevel.block ? userLevel.block : blocks} />,
-    <SelectInput label="Cluster" source="location#cluster" choices={clusters} />,
+    <SelectInput
+      label="District"
+      onChange={(e: any) => {
+        setSelectedDistrict(e.target.value);
+        setSelectedBlock(null);
+        setSelectedCluster(null);
+      }}
+      source="location#district"
+      choices={userLevel?.district ? userLevel?.district : districts}
+    />,
+    <SelectInput
+      label="Block"
+      onChange={(e) => {
+        setSelectedBlock(e.target.value);
+        setSelectedCluster(null);
+      }}
+      value={selectedBlock}
+      source="location#block"
+      choices={userLevel?.block ? userLevel?.block : blocks}
+
+    />,
+    <SelectInput
+      label="cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="location#cluster"
+      choices={clusters}
+    />,
   ];
 
 
@@ -177,7 +208,13 @@ const SchoolList = () => {
 
 
     if (district && block) {
+
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+
       if (Array.isArray(block)) {
+        setSelectedBlock(block[0].name)
         setFilterObj({ "location#block": block[0].name })
       }
       setUserLevel((prev: any) => ({
@@ -187,6 +224,7 @@ const SchoolList = () => {
       }))
     } else {
       if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
         setFilterObj({ "location#district": district[0].name })
 
       }
@@ -221,15 +259,7 @@ const SchoolList = () => {
       <TextField label="District" source="location.district" />
       <TextField label="Block" source="location.block" />
       <TextField label="Cluster" source="location.cluster" />
-      {/* <FunctionField
-              label="Session"
-              render={(record: any) => {
-                const obj = config.schoolSession.find(
-                  (elem: any) => elem.id === record.session
-                );
-                return obj?.name;
-              }}
-            /> */}
+
       <BooleanField label="Active" source="is_active" />
     </ListDataGridWithPermissions>
 

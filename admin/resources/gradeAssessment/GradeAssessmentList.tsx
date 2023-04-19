@@ -22,6 +22,18 @@ import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import UserService from "../../utils/user.util";
 
 const GradeAssessmentList = () => {
+  const dataProvider = useDataProvider();
+  const {
+    data: _districtData,
+    isLoading,
+    error,
+  } = useQuery(["location", "getList", {}], () =>
+    dataProvider.getList("location", {
+      pagination: { perPage: 10000, page: 1 },
+      sort: { field: "id", order: "asc" },
+      filter: {},
+    })
+  );
 
   const [filterObj, setFilterObj] = useState<any>({})
   const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
@@ -72,7 +84,6 @@ const GradeAssessmentList = () => {
     });
   }, [districtData]);
 
-
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];
@@ -81,16 +92,11 @@ const GradeAssessmentList = () => {
     if (userLevel.district && !userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
-        "block"
-      ).map((a) => {
-        return {
-          id: a.block,
-          name: a.block,
-        };
-      });
+  
 
     return _.uniqBy(
       districtData,
+
       "block"
     ).map((a) => {
       return {
@@ -110,6 +116,7 @@ const GradeAssessmentList = () => {
     if (userLevel.district && !userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
@@ -132,6 +139,7 @@ const GradeAssessmentList = () => {
 
     return _.uniqBy(
       districtData,
+
       "cluster"
     ).map((a) => {
       return {
@@ -139,7 +147,7 @@ const GradeAssessmentList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData, selectedDistrict]);
+ssssssssssssssssssssssss  }, [selectedBlock, districtData, selectedDistrict]);
 
 
 
@@ -147,9 +155,35 @@ const GradeAssessmentList = () => {
     <TextInput label="UDISE" source="school#udise" key={"search"} alwaysOn />,
     <SelectInput label="Grade Number" source="grade_number" key={"search"} choices={gradeNumberChoices} />,
     <SelectInput source="assessment#type" label="Assessment Type" choices={assessmentTypeChoices} />,
-    <SelectInput source="school#location#district" label="District" choices={userLevel.district ? userLevel.district : districts} />,
-    <SelectInput source="school#location#block" label="Block" choices={userLevel.block ? userLevel.block : blocks} />,
-    <SelectInput source="school#location#cluster" label="Cluster" choices={clusters} />
+    <SelectInput
+      label="District"
+      onChange={(e: any) => {
+        setSelectedDistrict(e.target.value);
+        setSelectedBlock(null);
+        setSelectedCluster(null);
+      }}
+      source="school#location#district"
+      choices={userLevel?.district ? userLevel?.district : districts}
+    />,
+    <SelectInput
+      label="Block"
+      onChange={(e) => {
+        setSelectedBlock(e.target.value);
+        setSelectedCluster(null);
+      }}
+      value={selectedBlock}
+      source="school#location#block"
+      choices={userLevel?.block ? userLevel?.block : blocks}
+
+    />,
+    <SelectInput
+      label="Cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="school#location#cluster"
+      choices={clusters}
+    />,
+
   ];
   const handleInitialRender = useCallback(async () => {
     // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
@@ -167,7 +201,12 @@ const GradeAssessmentList = () => {
 
 
     if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+
       if (Array.isArray(block)) {
+        setSelectedBlock(block[0].name)
         setFilterObj({ "school#location#block": block[0].name })
       }
       setUserLevel((prev: any) => ({
@@ -177,6 +216,7 @@ const GradeAssessmentList = () => {
       }))
     } else {
       if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
         setFilterObj({ "school#location#district": district[0].name })
       }
       setUserLevel((prev: any) => ({

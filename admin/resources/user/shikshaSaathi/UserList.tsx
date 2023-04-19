@@ -103,11 +103,12 @@ const UserList = () => {
 
   // *****************************************************************
   const location = useLocation();
+
+
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
-
-  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
 
 
@@ -175,6 +176,7 @@ const UserList = () => {
     if (userLevel.district && !userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
@@ -197,6 +199,7 @@ const UserList = () => {
 
     return _.uniqBy(
       districtData,
+
       "cluster"
     ).map((a) => {
       return {
@@ -205,6 +208,7 @@ const UserList = () => {
       };
     });
   }, [selectedBlock, districtData, selectedDistrict]);
+
 
   const rolesChoices: any = designationLevels;
   const Filters = [
@@ -235,13 +239,13 @@ const UserList = () => {
       choices={userLevel?.block ? userLevel?.block : blocks}
 
     />,
-    // <SelectInput
-    //   label="Cluster"
-    //   onChange={(e) => setSelectedCluster(e.target.value)}
-    //   value={selectedCluster}
-    //   source="cluster"
-    //   choices={clusters}
-    // />,
+    <SelectInput
+      label="Cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="cluster"
+      choices={clusters}
+    />,
   ];
 
 
@@ -275,7 +279,9 @@ const UserList = () => {
     }, 50);
 
     let user = new UserService()
-    let { district, block }: any = await user.getInfoForUserListResource()
+    let { district, block, cluster }: any = await user.getInfoForUserListResource()
+
+    console.log(cluster)
 
 
     if (district && block) {
@@ -301,7 +307,6 @@ const UserList = () => {
     }
 
     return (() => clearInterval(a))
-
   }, [])
 
 

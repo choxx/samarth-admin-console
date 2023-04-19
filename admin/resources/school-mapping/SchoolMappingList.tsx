@@ -157,6 +157,7 @@ const SchoolMappingList = () => {
     if (userLevel.district && userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
@@ -164,6 +165,7 @@ const SchoolMappingList = () => {
           name: a.cluster,
         };
       });
+
 
     return _.uniqBy(
       districtData,

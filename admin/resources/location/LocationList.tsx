@@ -98,6 +98,7 @@ const LocationList = () => {
     if (userLevel.district && !userLevel.block)
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
