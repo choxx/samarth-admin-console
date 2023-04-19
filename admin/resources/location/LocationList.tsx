@@ -60,6 +60,7 @@ const LocationList = () => {
     });
   }, [districtData]);
 
+  // new approach
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];
