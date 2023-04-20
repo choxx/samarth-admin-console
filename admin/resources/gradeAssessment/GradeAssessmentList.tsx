@@ -1,24 +1,15 @@
 import {
   TextField,
-  ReferenceField,
-  DateField,
   TextInput,
   useDataProvider,
-  SearchInput,
-  FunctionField,
   SelectInput,
-  ReferenceInput,
-  AutocompleteInput,
-  BulkDeleteWithConfirmButton,
   BulkDeleteButton,
 } from "react-admin";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { useQuery } from "react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
 import _ from "lodash";
 import { assessmentTypeChoices, gradeNumberChoices } from "../../utils/InputChoicesHelper";
-import { getLocationDetails } from "../../utils/LocationDetailsHelper";
 import UserService from "../../utils/user.util";
 
 const GradeAssessmentList = () => {
@@ -78,15 +69,34 @@ const GradeAssessmentList = () => {
       return [];
     }
 
-    if (userLevel.district && !userLevel.block) {
+    if (userLevel.district && !userLevel.block && !selectedDistrict) {
       return _.uniqBy(
-        districtData.filter((d) => d.district === userLevel?.district[0]?.name), "block")
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
     }
 
+    if (selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
 
     return _.uniqBy(
       districtData,
-
       "block"
     ).map((a) => {
       return {
@@ -103,10 +113,9 @@ const GradeAssessmentList = () => {
     }
 
 
-    if (userLevel.district && !userLevel.block)
+    if (userLevel.district && !userLevel.block && !selectedBlock) {
       return _.uniqBy(
         districtData.filter((d) => d.district === userLevel?.district[0]?.name),
-
         "cluster"
       ).map((a) => {
         return {
@@ -114,11 +123,13 @@ const GradeAssessmentList = () => {
           name: a.cluster,
         };
       });
+    }
 
 
-    if (userLevel.district && userLevel.block)
+    if (userLevel.district && userLevel.block && !selectedBlock) {
       return _.uniqBy(
         districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
         "cluster"
       ).map((a) => {
         return {
@@ -126,10 +137,25 @@ const GradeAssessmentList = () => {
           name: a.cluster,
         };
       });
+    }
+
+
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
 
     return _.uniqBy(
       districtData,
-
       "cluster"
     ).map((a) => {
       return {
@@ -137,7 +163,7 @@ const GradeAssessmentList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData, selectedDistrict]);
+  }, [selectedBlock, districtData, selectedBlock]);
 
 
 
