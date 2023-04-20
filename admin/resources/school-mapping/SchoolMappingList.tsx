@@ -107,12 +107,25 @@ const SchoolMappingList = () => {
       };
     });
   }, [districtData]);
+
   const blocks = useMemo(() => {
-    if (!selectedDistrict || !districtData) {
+    if (!districtData) {
       return [];
     }
+
+    if (userLevel.district && !userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+
     return _.uniqBy(
-      districtData.filter((d) => d.district === selectedDistrict),
+      districtData,
       "block"
     ).map((a) => {
       return {
@@ -123,13 +136,15 @@ const SchoolMappingList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
-    if (!selectedBlock || !districtData) {
+
+    if (!districtData) {
       return [];
     }
 
-    if (selectedDistrict) {
+
+    if (userLevel.district && !userLevel.block)
       return _.uniqBy(
-        districtData.filter((d) => d.district === selectedDistrict),
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
         "cluster"
       ).map((a) => {
         return {
@@ -137,10 +152,23 @@ const SchoolMappingList = () => {
           name: a.cluster,
         };
       });
-    }
+
+
+    if (userLevel.district && userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+
 
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData,
       "cluster"
     ).map((a) => {
       return {
@@ -148,7 +176,7 @@ const SchoolMappingList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const quarterChoices = [
     { id: 1, name: 1 },

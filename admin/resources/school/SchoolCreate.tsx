@@ -154,9 +154,33 @@ const SchoolCreate = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
-    if (!selectedBlock || !districtData) {
+    if (!districtData) {
       return [];
     }
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"
@@ -165,10 +189,8 @@ const SchoolCreate = () => {
         id: a.cluster,
         name: a.cluster,
       };
-    }).sort((a: any, b: any) => { return a.name < b.name ? -1 : 1 });;
-  }, [selectedBlock, districtData]);
-
-  console.log(data)
+    });
+  }, [selectedBlock, districtData, selectedDistrict]);
 
 
   return (

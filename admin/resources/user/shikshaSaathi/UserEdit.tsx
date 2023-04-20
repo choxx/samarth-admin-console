@@ -139,14 +139,30 @@ const UserForm = () => {
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
-      return _.uniqBy(districtData, "cluster").map((a) => {
+    if (!selectedBlock && selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+        "cluster"
+      ).map((a) => {
         return {
           id: a.cluster,
           name: a.cluster,
         };
       });
     }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"
@@ -156,7 +172,7 @@ const UserForm = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const validatePhoneNumber = [
     required(),

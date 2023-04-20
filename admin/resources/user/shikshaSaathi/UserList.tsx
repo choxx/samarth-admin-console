@@ -138,13 +138,16 @@ const UserList = () => {
       };
     });
   }, [districtData]);
+
   const blocks = useMemo(() => {
     if (!districtData) {
       return [];
     }
-    if (!selectedDistrict) {
+
+    if (userLevel.district && !userLevel.block && !selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
         "block"
       ).map((a) => {
         return {
@@ -153,8 +156,22 @@ const UserList = () => {
         };
       });
     }
+
+    if (selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
+
     return _.uniqBy(
-      districtData.filter((d) => d.district === selectedDistrict),
+      districtData,
       "block"
     ).map((a) => {
       return {
@@ -165,12 +182,15 @@ const UserList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
+
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock && selectedDistrict) {
+
+
+    if (userLevel.district && !userLevel.block && !selectedBlock) {
       return _.uniqBy(
-        districtData.filter((d) => d.district === selectedDistrict),
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
         "cluster"
       ).map((a) => {
         return {
@@ -179,8 +199,38 @@ const UserList = () => {
         };
       });
     }
+
+
+    if (userLevel.district && userLevel.block && !selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData,
       "cluster"
     ).map((a) => {
       return {
@@ -188,7 +238,8 @@ const UserList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedBlock]);
+
 
   const rolesChoices: any = designationLevels;
   const Filters = [

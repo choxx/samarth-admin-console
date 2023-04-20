@@ -168,9 +168,9 @@ const UserCreate = (props: any) => {
     if (!districtData) {
       return [];
     }
-    if (!selectedBlock) {
+    if (!selectedBlock && selectedDistrict) {
       return _.uniqBy(
-        districtData,
+        districtData.filter((d) => d.district === selectedDistrict),
         "cluster"
       ).map((a) => {
         return {
@@ -179,6 +179,19 @@ const UserCreate = (props: any) => {
         };
       });
     }
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
     return _.uniqBy(
       districtData.filter((d) => d.block === selectedBlock),
       "cluster"
@@ -188,7 +201,8 @@ const UserCreate = (props: any) => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
+
   const validatePhoneNumber = [required(), number(), minLength(10, "Phone Number must be of 10 digit"), maxLength(10, "Phone Number must be of 10 digit")];
   const validateName = required("Please enter a valid name");
   const validateRole = required("Please select a role")
