@@ -10,9 +10,6 @@ import { lightTheme } from "./components/layout/themes";
 import { Layout } from "./components/layout";
 import { MenuItemsWithPermissionResolver } from "./components/layout/MenuOptions";
 
-import * as MuiIcons from "@mui/icons-material"
-
-
 //
 const JSONDp = jsonServerProvider("https://jsonplaceholder.typicode.com");
 
@@ -45,7 +42,7 @@ const App = () => {
   };
   const JSONDataProvider = {
     ...JSONDp,
-    updateSamarthUser: (...r: any) => { },
+    updateSamarthUser: (...r: any) => {},
   };
   const prepareDataProviders = async (session: any) => {
     try {
@@ -75,7 +72,7 @@ const App = () => {
         }
       });
       setDataProvider(_dataProvider);
-    } catch (e) { }
+    } catch (e) {}
   };
   useEffect(() => {
     prepareDataProviders(session);
@@ -103,7 +100,11 @@ const App = () => {
 
   // Preparing data providers again as soon as token is retrieved.
   document.addEventListener("userFetched", prepareDataProvidersAgain, false);
-  document.addEventListener("refreshUserToken", prepareDataProvidersAgain, false);
+  document.addEventListener(
+    "refreshUserToken",
+    prepareDataProvidersAgain,
+    false
+  );
 
   return (
     <>

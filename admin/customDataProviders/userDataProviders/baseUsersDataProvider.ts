@@ -1,11 +1,4 @@
 import { client } from "../../api-clients/users-client";
-import { APPLICATIONS } from "../../utils/interfaces";
-
-
-
-
-
-
 
 import UserService from "../../utils/user.util";
 
@@ -18,34 +11,44 @@ mutation($object:teacher_set_input!, $id:uuid!){
   }
 }`;
 
-
 const dataProvider = {
   getList: async (
     resource: any,
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
     const user = new UserService();
-    let queryString = [`registrations.applicationId:${resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id}`];
+    let queryString = [
+      `registrations.applicationId:${
+        resource === user._applications.e_samwaad_user.name
+          ? user._applications.e_samwaad_user.id
+          : user._applications.shiksha_saathi_user.id
+      }`,
+    ];
 
     let { roles: scope }: any = user.getDecodedUserToken();
 
     let compliment = {
-      shiksha_sathi: (resource == user._applications.shiksha_saathi_user.name) && (Array.isArray(scope)),
-      e_samwaad: (resource == user._applications.e_samwaad_user.name)
-    }
-
+      shiksha_sathi:
+        resource == user._applications.shiksha_saathi_user.name &&
+        Array.isArray(scope),
+      e_samwaad: resource == user._applications.e_samwaad_user.name,
+    };
 
     if (compliment.shiksha_sathi) {
       let { district, block }: any = await user.getUserRoleData();
       switch (scope[0]) {
         case user.scope.district:
-          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`];
-          break
+          queryString = [
+            `registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.district: ${district}`,
+          ];
+          break;
         case user.scope.block:
-          queryString = [`registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.block: ${block}`];
-          break
+          queryString = [
+            `registrations.applicationId:${user._applications.shiksha_saathi_user.id} AND data.roleData.block: ${block}`,
+          ];
+          break;
         default:
-          break
+          break;
       }
     }
 
@@ -53,7 +56,9 @@ const dataProvider = {
     // const UDISES = [2100600104, 110, 2080210301].join(" ");
     if (compliment.e_samwaad) {
       // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
-      queryString = [`registrations.applicationId:${user._applications.e_samwaad_user.id}`]
+      queryString = [
+        `registrations.applicationId:${user._applications.e_samwaad_user.id}`,
+      ];
     }
 
     if (filter && Object.keys(filter).length > 0) {
@@ -92,30 +97,34 @@ const dataProvider = {
       startRow: (page - 1) * perPage,
       numberOfResults: perPage,
       queryString: `(${queryString.join(") AND (")})`,
-      applicationId: resource === user._applications.e_samwaad_user.name ? user._applications.e_samwaad_user.id : user._applications.shiksha_saathi_user.id,
+      applicationId:
+        resource === user._applications.e_samwaad_user.name
+          ? user._applications.e_samwaad_user.id
+          : user._applications.shiksha_saathi_user.id,
     };
     const response = await client.get("/admin/searchUser", { params });
-    if (response?.data?.result) {
+    console.log(response, "response getlist ");
+
+    if (response?.data.responseCode === "OK") {
       return {
-        total: response?.data?.result?.total,
+        total: response?.data?.result?.total || 0,
         data: response?.data?.result?.users || [],
       };
     } else {
-      return {
-        total: 0,
-        data: [],
-      };
+      throw new Error("Cannot search more then 10,000 records");
     }
   },
   getOne: async (resource: any, { id }: any): Promise<any> => {
     const params = {
-      queryString: id
+      queryString: id,
     };
     const response = await client.get("/admin/searchUser", { params });
 
     if (response?.data?.result) {
       return {
-        data: response?.data?.result?.users?.filter((el: any) => el.id == id)?.[0],
+        data: response?.data?.result?.users?.filter(
+          (el: any) => el.id == id
+        )?.[0],
       };
     }
     return response;
@@ -128,7 +137,7 @@ const dataProvider = {
 
     if (response?.data?.result) {
       return {
-        data: response?.data?.result?.users
+        data: response?.data?.result?.users,
       };
     }
     return response;
@@ -160,7 +169,7 @@ const dataProvider = {
           data: response?.data?.result,
         };
       }
-    } catch (e) { }
+    } catch (e) {}
     throw new Error("Unable to update");
   },
 };
