@@ -57,7 +57,7 @@ body {
   position: absolute;
   color: rgba(0, 0, 0, 0.8);
   margin-bottom: 1rem;
-  top: 30%
+  top: 30%;
 }
 
 .flex_show_wrapper {
@@ -66,4 +66,15 @@ body {
   gap: 8rem;
   margin: 2rem 0rem 7rem 0rem;
   justify-content: center;
+}
+
+.MyCustomPagination
+  span
+  div
+  > div:last-child
+  nav
+  ul
+  > li:nth-child(8)
+  > button {
+  display: none;
 }
