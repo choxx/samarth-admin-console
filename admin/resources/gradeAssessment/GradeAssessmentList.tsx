@@ -248,11 +248,32 @@ const GradeAssessmentList = () => {
     handleInitialRender()
   }, [handleInitialRender])
 
+  const onSuccess = (data: any) => {
+    console.log("deeleted data", data)
+
+    let idList = Array.from(new Set(data.map((el: any) => el.id)))
+    let udiseList = Array.from(new Set(data.map((el: any) => el.udise)))
+
+    console.log(idList)
+    console.log(udiseList)
+
+    // Invalidating cache on deletion
+    const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
+    const token = userData?.user?.token;
+
+    fetch(`https://e-samwad.samagra.io/api/v5/assessment/invalidate/v2/?assessments=[${idList.toString()}]&udises=[${udiseList.toString()}]`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  }
+
   return (
     <ListDataGridWithPermissions
       dataGridProps={{ rowClick: "show" }}
       listProps={{ filters: Filters, filter: filterObj }}
-      withDelete={<BulkDeleteButton />}
+      withDelete={<BulkDeleteButton mutationOptions={{ onSuccess }} mutationMode={'pessimistic'} />}
     >
       <TextField source="id" />
       <TextField label={"Assessment"} source="assessment_id" />
@@ -271,3 +292,4 @@ const GradeAssessmentList = () => {
   );
 };
 export default GradeAssessmentList;
+

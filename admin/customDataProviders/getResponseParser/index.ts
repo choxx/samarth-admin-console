@@ -21,9 +21,8 @@ export type GetResponseParser = (introspectionResults: IntrospectionResult) => (
 };
 
 export const getResponseParser: GetResponseParser =
-  () => (aorFetchType) => (res) => {
+  () => (aorFetchType, resource) => (res) => {
     const response = res.data;
-
     switch (aorFetchType) {
       case GET_MANY_REFERENCE:
       case GET_LIST:
@@ -44,9 +43,11 @@ export const getResponseParser: GetResponseParser =
         return { data: sanitizeResource(response.data.returning[0]) };
 
       case UPDATE_MANY:
-      case DELETE_MANY:
+      case DELETE_MANY: {
+        if (resource?.type.name == 'grade_assessment')
+          return { data: response.data.returning.map((x: any) => { return { id: x.id, udise: x.school.udise } }) };
         return { data: response.data.returning.map((x: { id: any }) => x.id) };
-
+      }
       default:
         throw Error(`Expected a proper fetchType, got: ${aorFetchType}`);
     }
