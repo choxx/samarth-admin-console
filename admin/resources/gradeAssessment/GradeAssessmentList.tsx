@@ -249,13 +249,9 @@ const GradeAssessmentList = () => {
   }, [handleInitialRender])
 
   const onSuccess = (data: any) => {
-    console.log("deeleted data", data)
 
     let idList = Array.from(new Set(data.map((el: any) => el.id)))
     let udiseList = Array.from(new Set(data.map((el: any) => el.udise)))
-
-    console.log(idList)
-    console.log(udiseList)
 
     // Invalidating cache on deletion
     const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") as string) : null;
@@ -267,6 +263,7 @@ const GradeAssessmentList = () => {
         Authorization: `Bearer ${token}`
       }
     })
+    window.location.reload();
   }
 
   return (
