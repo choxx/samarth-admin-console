@@ -262,8 +262,11 @@ const GradeAssessmentList = () => {
       headers: {
         Authorization: `Bearer ${token}`
       }
+    }).then(async (res: any) => {
+      res = await res.json();
+      console.log(res);
+      window.location.reload();
     })
-    window.location.reload();
   }
 
   return (
