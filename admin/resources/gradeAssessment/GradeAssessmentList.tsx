@@ -248,7 +248,7 @@ const GradeAssessmentList = () => {
     handleInitialRender()
   }, [handleInitialRender])
 
-  const onSuccess = (data: any) => {
+  const onSuccess = async (data: any) => {
 
     let idList = Array.from(new Set(data.map((el: any) => el.id)))
     let udiseList = Array.from(new Set(data.map((el: any) => el.udise)))
@@ -264,8 +264,10 @@ const GradeAssessmentList = () => {
       }
     }).then(async (res: any) => {
       res = await res.json();
-      console.log(res);
-      window.location.reload();
+      console.log("RESS--->", res);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000)
     })
   }
 
