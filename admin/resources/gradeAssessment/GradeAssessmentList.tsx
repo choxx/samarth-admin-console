@@ -274,8 +274,8 @@ const GradeAssessmentList = () => {
   return (
     <ListDataGridWithPermissions
       dataGridProps={{ rowClick: "show" }}
-      listProps={{ filters: Filters, filter: filterObj }}
-      withDelete={<BulkDeleteButton mutationOptions={{ onSuccess }} mutationMode={'pessimistic'} />}
+      listProps={{ filters: Filters, filter: filterObj, sort: { field: 'assessment_id', order: 'DESC' } }}
+      withDelete={< BulkDeleteButton mutationOptions={{ onSuccess }} mutationMode={'pessimistic'} />}
     >
       <TextField source="id" />
       <TextField label={"Assessment"} source="assessment_id" />
@@ -290,7 +290,7 @@ const GradeAssessmentList = () => {
       <TextField source="school.location.block" />
       <TextField source="school.location.cluster" />
       <TextField source="streams_id" />
-    </ListDataGridWithPermissions>
+    </ListDataGridWithPermissions >
   );
 };
 export default GradeAssessmentList;

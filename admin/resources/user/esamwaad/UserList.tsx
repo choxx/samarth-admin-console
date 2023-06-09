@@ -10,6 +10,7 @@ import {
   TextInput,
   useDataProvider,
   useRecordContext,
+  NumberInput,
 } from "react-admin";
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -244,6 +245,7 @@ const UserList = () => {
 
   const Filters = [
     <TextInput label="Username" source="username" alwaysOn key={"search"} />,
+    <NumberInput label="UDISE" source="udise" key={"search"} />,
     <SelectInput
       label="Role"
       source="esamwadRoles"

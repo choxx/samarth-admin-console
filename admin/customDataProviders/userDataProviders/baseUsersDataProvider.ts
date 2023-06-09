@@ -18,10 +18,9 @@ const dataProvider = {
   ): Promise<any> => {
     const user = new UserService();
     let queryString = [
-      `registrations.applicationId:${
-        resource === user._applications.e_samwaad_user.name
-          ? user._applications.e_samwaad_user.id
-          : user._applications.shiksha_saathi_user.id
+      `registrations.applicationId:${resource === user._applications.e_samwaad_user.name
+        ? user._applications.e_samwaad_user.id
+        : user._applications.shiksha_saathi_user.id
       }`,
     ];
 
@@ -63,7 +62,7 @@ const dataProvider = {
 
     if (filter && Object.keys(filter).length > 0) {
       if (filter?.udise) {
-        queryString.push(`${filter?.udise}`);
+        queryString.push(`data.udise:${filter?.udise}*`);
       }
 
       if (filter?.shikshaRoles) {
@@ -88,9 +87,8 @@ const dataProvider = {
       }
       if (filter?.username) {
         queryString.push(
-          `username:${filter?.username} OR username:*${filter?.username}*`
+          `username:${filter?.username?.trim()} OR username:*${filter?.username?.trim()}*`
         );
-        // queryString.push(``);
       }
     }
     const params = {
@@ -169,7 +167,7 @@ const dataProvider = {
           data: response?.data?.result,
         };
       }
-    } catch (e) {}
+    } catch (e) { }
     throw new Error("Unable to update");
   },
 };
