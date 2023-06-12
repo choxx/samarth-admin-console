@@ -87,7 +87,7 @@ const dataProvider = {
       }
       if (filter?.username) {
         queryString.push(
-          `username:${filter?.username?.trim()} OR username:*${filter?.username?.trim()}*`
+          `username:"${filter?.username?.trim()}"`
         );
       }
     }
@@ -100,8 +100,28 @@ const dataProvider = {
           ? user._applications.e_samwaad_user.id
           : user._applications.shiksha_saathi_user.id,
     };
-    const response = await client.get("/admin/searchUser", { params });
+    let response = await client.get("/admin/searchUser", { params });
     console.log(response, "response getlist ");
+
+    if (!response?.data?.result?.users?.length && filter?.username) {
+      queryString = queryString.filter(el => !el.includes("username"));
+
+      // Adding similar condition for username
+      queryString.push(
+        `username:${filter?.username?.trim()} OR username:*${filter?.username?.trim()}*`
+      );
+      const params = {
+        startRow: (page - 1) * perPage,
+        numberOfResults: perPage,
+        queryString: `(${queryString.join(") AND (")})`,
+        applicationId:
+          resource === user._applications.e_samwaad_user.name
+            ? user._applications.e_samwaad_user.id
+            : user._applications.shiksha_saathi_user.id,
+      };
+      response = await client.get("/admin/searchUser", { params });
+      console.log("New Response:", response)
+    }
 
     if (response?.data.responseCode === "OK") {
       return {
