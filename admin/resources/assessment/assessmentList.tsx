@@ -9,7 +9,6 @@ import { ListDataGridWithPermissions } from "../../components/lists";
 import { useRecordContext } from "react-admin";
 
 const AssessmentList = () => {
-  const record = useRecordContext();
   return (
     <ListDataGridWithPermissions dataGridProps={{ rowClick: "show" }}>
       <TextField source="id" />

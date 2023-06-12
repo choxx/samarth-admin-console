@@ -1,17 +1,169 @@
 import {
   TextField,
-  ReferenceField,
   TextInput,
-  FunctionField,
   SelectInput,
+  useDataProvider,
 } from "react-admin";
-import { WithMyDistricts } from "../../components/withAccesses";
 import { ListDataGridWithPermissions } from "../../components/lists";
 import { BooleanField } from "react-admin";
-import { getLocationDetails } from "../../utils/LocationDetailsHelper";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import UserService from "../../utils/user.util";
+import { useQuery } from "react-query";
+import * as _ from "lodash"
+
 
 const SchoolList = () => {
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
+
+  const params: any = new Proxy(new URLSearchParams(location.search), {
+    get: (searchParams, prop) => searchParams.get(prop as string),
+  });
+  const initialFilters = params.filter ? JSON.parse(params.filter) : null;
+
+
+  const [selectedDistrict, setSelectedDistrict] = useState(
+    initialFilters?.district || ""
+  );
+
+  const [selectedBlock, setSelectedBlock] = useState(
+    initialFilters?.block || ""
+  );
+  const [selectedCluster, setSelectedCluster] = useState(
+    initialFilters?.cluster || ""
+  );
+
+  const dataProvider = useDataProvider();
+
+  const {
+    data: _districtData,
+    isLoading,
+    error,
+  } = useQuery(["location", "getList", {}], () =>
+    dataProvider.getList("location", {
+      pagination: { perPage: 10000, page: 1 },
+      sort: { field: "id", order: "asc" },
+      filter: {},
+    })
+  )
+
+  const districtData = useMemo(() => {
+    return _districtData?.data;
+  }, [_districtData]);
+
+  const districts = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+    return _.uniqBy(districtData, "district").map((a) => {
+      return {
+        id: a.district,
+        name: a.district,
+      };
+    });
+  }, [districtData]);
+
+  const blocks = useMemo(() => {
+    if (!districtData) {
+      return [];
+    }
+
+    if (userLevel.district && !userLevel.block && !selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
+
+    if (selectedDistrict) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === selectedDistrict),
+
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+    }
+
+    return _.uniqBy(
+      districtData,
+      "block"
+    ).map((a) => {
+      return {
+        id: a.block,
+        name: a.block,
+      };
+    });
+  }, [selectedDistrict, districtData]);
+
+  const clusters = useMemo(() => {
+
+    if (!districtData) {
+      return [];
+    }
+
+
+    if (userLevel.district && !userLevel.block && !selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+
+    if (userLevel.district && userLevel.block && !selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+
+
+    if (selectedBlock) {
+      return _.uniqBy(
+        districtData.filter((d) => d.block === selectedBlock),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+    }
+
+    return _.uniqBy(
+      districtData,
+      "cluster"
+    ).map((a) => {
+      return {
+        id: a.cluster,
+        name: a.cluster,
+      };
+    });
+  }, [selectedBlock, districtData, selectedBlock]);
+
   const typeChoice = [
     { id: "GPS", name: "GPS" },
     { id: "GMS", name: "GMS" },
@@ -26,7 +178,6 @@ const SchoolList = () => {
     { id: true, name: true },
     { id: false, name: false },
   ];
-  const { districts, blocks, clusters } = getLocationDetails();
 
   const Filters = [
     <TextInput label="School Name" source="name@_ilike" alwaysOn key={"search"} />,
@@ -34,13 +185,41 @@ const SchoolList = () => {
     <SelectInput label="Type" source="type" choices={typeChoice} />,
     <SelectInput label="Session" source="session" choices={sessionChoices} />,
     <SelectInput label="Active" source="is_active" choices={activeChoices} />,
-    <SelectInput label="District" source="location#district" choices={districts} />,
-    <SelectInput label="Block" source="location#block" choices={blocks} />,
-    <SelectInput label="Cluster" source="location#cluster" choices={clusters} />,
+    <SelectInput
+      label="District"
+      onChange={(e: any) => {
+        setSelectedDistrict(e.target.value);
+        setSelectedBlock(null);
+        setSelectedCluster(null);
+      }}
+      source="location#district"
+      choices={userLevel?.district ? userLevel?.district : districts}
+    />,
+    <SelectInput
+      label="Block"
+      onChange={(e) => {
+        setSelectedBlock(e.target.value);
+        setSelectedCluster(null);
+      }}
+      value={selectedBlock}
+      source="location#block"
+      choices={userLevel?.block ? userLevel?.block : blocks}
+
+    />,
+    <SelectInput
+      label="cluster"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+      value={selectedCluster}
+      source="location#cluster"
+      choices={clusters}
+    />,
   ];
 
-  // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
-  useEffect(() => {
+
+  const handleInitialRendering = useCallback(async () => {
+
+    // Hotfix to remove 'Save current query...' and 'Remove all filters' option from filter list #YOLO
+
     const a = setInterval(() => {
       let x = document.getElementsByClassName('MuiMenuItem-gutters');
       for (let i = 0; i < x.length; i++) {
@@ -50,40 +229,67 @@ const SchoolList = () => {
       }
     }, 50);
 
+
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+
+      if (Array.isArray(block)) {
+        setSelectedBlock(block[0].name)
+        setFilterObj({ "location#block": block[0].name })
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+        setFilterObj({ "location#district": district[0].name })
+
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+
     return (() => clearInterval(a))
   }, [])
 
+
+
+  useEffect(() => {
+    handleInitialRendering()
+  }, [handleInitialRendering])
+
   return (
-    <WithMyDistricts>
-      {(districts: any) => {
-        return (
-          <ListDataGridWithPermissions
-            listProps={{
-              filters: Filters,
-            }}
-            showExporter={true}
-          >
-            <TextField label="UDISE" source="udise" />
-            <TextField label="Name" source="name" />
-            <TextField label="Type" source="type" />
-            <TextField label="Session" source="session" />
-            <TextField label="District" source="location.district" />
-            <TextField label="Block" source="location.block" />
-            <TextField label="Cluster" source="location.cluster" />
-            {/* <FunctionField
-              label="Session"
-              render={(record: any) => {
-                const obj = config.schoolSession.find(
-                  (elem: any) => elem.id === record.session
-                );
-                return obj?.name;
-              }}
-            /> */}
-            <BooleanField label="Active" source="is_active" />
-          </ListDataGridWithPermissions>
-        );
+
+    <ListDataGridWithPermissions
+      listProps={{
+        filters: Filters,
+        filter: filterObj
       }}
-    </WithMyDistricts>
+      showExporter={true}
+    >
+      <TextField label="UDISE" source="udise" />
+      <TextField label="Name" source="name" />
+      <TextField label="Type" source="type" />
+      <TextField label="Session" source="session" />
+      <TextField label="District" source="location.district" />
+      <TextField label="Block" source="location.block" />
+      <TextField label="Cluster" source="location.cluster" />
+
+      <BooleanField label="Active" source="is_active" />
+    </ListDataGridWithPermissions>
+
   );
 };
 export default SchoolList;

@@ -42,32 +42,38 @@ export const loginPreCheck = async (userName: string, password: string) => {
 };
 
 export const RefreshToken = async () => {
-  const userData = JSON.parse(localStorage.getItem("userData") as string);
-  const data = {
-    token: userData?.user?.token,
-    refreshToken: userData?.user?.refreshToken
-  }
-  if (data.token && data.refreshToken) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/refresh-token`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        "x-application-id": '77638847-db34-4331-b369-5768fdfededd'
-      },
-      body: JSON.stringify(data)
-    });
-    let refreshData = await res.json();
-    userData.user.token = refreshData.result.user.token;
-    userData.user.refreshToken = refreshData.result.user.refreshToken;
+  try {
+    const userData = JSON.parse(localStorage.getItem("userData") as string);
+    const data = {
+      token: userData?.user?.token,
+      refreshToken: userData?.user?.refreshToken
+    }
+    if (data.token && data.refreshToken) {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/refresh-token`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          "x-application-id": '77638847-db34-4331-b369-5768fdfededd'
+        },
+        body: JSON.stringify(data)
+      });
+      if (res) {
+        let refreshData = await res.json();
+        userData.user.token = refreshData.result.user.token;
+        userData.user.refreshToken = refreshData.result.user.refreshToken;
 
-    const event: any = new Event('refreshUserToken');
+        const event: any = new Event('refreshUserToken');
 
-    event.value = refreshData.result.user.token;
-    event.key = 'jwtToken';
+        event.value = refreshData.result.user.token;
+        event.key = 'jwtToken';
 
-    document.dispatchEvent(event);
+        document.dispatchEvent(event);
 
-    localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+    }
+  } catch (error) {
+    return false;
   }
 };

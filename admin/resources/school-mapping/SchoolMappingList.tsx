@@ -17,9 +17,10 @@ import { useLocation } from "react-router-dom";
 import { useQuery } from "react-query";
 import { Box, Typography } from "@mui/material";
 import { ListDataGridWithPermissions } from "../../components/lists";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as _ from "lodash";
 import FormatSelectorModal from "./FormatSelectorModal";
+import UserService from "../../utils/user.util";
 
 const QuarterField = ({ label }: { label: string }) => {
   const record = useRecordContext();
@@ -65,6 +66,8 @@ const SchoolMappingList = () => {
   const params: any = new Proxy(new URLSearchParams(location.search), {
     get: (searchParams, prop) => searchParams.get(prop as string),
   });
+  const [filterObj, setFilterObj] = useState<any>({})
+  const [userLevel, setUserLevel] = useState<any>({ district: false, block: false });
   const initialFilters = params.filter ? JSON.parse(params.filter) : null;
   const [selectedDistrict, setSelectedDistrict] = useState(
     initialFilters?.district || ""
@@ -104,12 +107,25 @@ const SchoolMappingList = () => {
       };
     });
   }, [districtData]);
+
   const blocks = useMemo(() => {
-    if (!selectedDistrict || !districtData) {
+    if (!districtData) {
       return [];
     }
+
+    if (userLevel.district && !userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+        "block"
+      ).map((a) => {
+        return {
+          id: a.block,
+          name: a.block,
+        };
+      });
+
     return _.uniqBy(
-      districtData.filter((d) => d.district === selectedDistrict),
+      districtData,
       "block"
     ).map((a) => {
       return {
@@ -120,11 +136,39 @@ const SchoolMappingList = () => {
   }, [selectedDistrict, districtData]);
 
   const clusters = useMemo(() => {
-    if (!selectedBlock || !districtData) {
+
+    if (!districtData) {
       return [];
     }
+
+
+    if (userLevel.district && !userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.district === userLevel?.district[0]?.name),
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+
+
+    if (userLevel.district && userLevel.block)
+      return _.uniqBy(
+        districtData.filter((d) => d.block === userLevel?.block[0]?.name),
+
+        "cluster"
+      ).map((a) => {
+        return {
+          id: a.cluster,
+          name: a.cluster,
+        };
+      });
+
+
     return _.uniqBy(
-      districtData.filter((d) => d.block === selectedBlock),
+      districtData,
       "cluster"
     ).map((a) => {
       return {
@@ -132,7 +176,7 @@ const SchoolMappingList = () => {
         name: a.cluster,
       };
     });
-  }, [selectedBlock, districtData]);
+  }, [selectedBlock, districtData, selectedDistrict]);
 
   const quarterChoices = [
     { id: 1, name: 1 },
@@ -201,6 +245,40 @@ const SchoolMappingList = () => {
 
   const toggleModal = () => setOpen(!open);
 
+  const getUserLevelValues = useCallback(async () => {
+
+    let user = new UserService()
+    let { district, block }: any = await user.getInfoForUserListResource()
+
+
+    if (district && block) {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+      }
+      if (Array.isArray(block)) {
+        setFilterObj({ "school#location#block": block[0].name })
+        setSelectedBlock(block[0].name)
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+        block
+      }))
+    } else {
+      if (Array.isArray(district)) {
+        setSelectedDistrict(district[0].name)
+        setFilterObj({ "school#location#district": district[0].name })
+
+      }
+      setUserLevel((prev: any) => ({
+        ...prev,
+        district,
+      }))
+    }
+  }, [])
+
+  useEffect(() => { getUserLevelValues() }, [getUserLevelValues])
+
   return (
     <>
       {/* <div className="student_mapping_imp">
@@ -208,7 +286,7 @@ const SchoolMappingList = () => {
         <FormatSelectorModal open={open} handleOpen={toggleModal} />
       </div> */}
       <ListDataGridWithPermissions
-        listProps={{ filters: Filters }}
+        listProps={{ filters: Filters, filter: filterObj }}
         dataGridProps={{ rowClick: "edit" }}
       >
         <TextField source="id" />
