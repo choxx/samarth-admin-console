@@ -34,6 +34,7 @@ const Login = () => {
   const location = useLocation();
   const handleSubmit = async (auth: FormValues) => {
     localStorage.clear();
+    //@ts-ignore
     const loginRes = await loginPreCheck(auth?.username, auth?.password);
     if (loginRes?.data?.responseCode === "OK") {
       setLoading(true);
