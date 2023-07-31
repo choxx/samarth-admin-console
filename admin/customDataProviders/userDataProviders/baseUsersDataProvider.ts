@@ -122,15 +122,10 @@ const dataProvider = {
       response = await client.get("/admin/searchUser", { params });
       console.log("New Response:", response)
     }
-
-    if (response?.data.responseCode === "OK") {
-      return {
-        total: response?.data?.result?.total || 0,
-        data: response?.data?.result?.users || [],
-      };
-    } else {
-      throw new Error("Cannot search more then 10,000 records");
-    }
+    return {
+      total: response?.data?.result?.total || 0,
+      data: response?.data?.result?.users || [],
+    };
   },
   getOne: async (resource: any, { id }: any): Promise<any> => {
     const params = {

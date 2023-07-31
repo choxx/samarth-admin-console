@@ -23,6 +23,7 @@ import {
 
 import Box from "@mui/material/Box";
 import { loginPreCheck } from "./utils";
+const CryptoJS = require("crypto-js");
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -33,15 +34,15 @@ const Login = () => {
   const location = useLocation();
   const handleSubmit = async (auth: FormValues) => {
     localStorage.clear();
-    //@ts-ignore
-    const isCorrect = await loginPreCheck(auth?.username, auth?.password);
-    if (isCorrect) {
+    const loginRes = await loginPreCheck(auth?.username, auth?.password);
+    if (loginRes?.data?.responseCode === "OK") {
       setLoading(true);
       login(
         auth,
         location.state ? (location.state as any).nextPathname : "/"
       ).catch((error: Error) => {
         setLoading(false);
+        console.log("ERROR--->", error)
         notify(
           typeof error === "string"
             ? error
@@ -62,7 +63,7 @@ const Login = () => {
         );
       });
     } else {
-      notify(`Invalid Credentials`, { type: "error" });
+      notify(loginRes?.data?.params?.errMsg, { type: "error" });
     }
   };
 
