@@ -89,20 +89,20 @@ services:
   #     - "3001:3000"
 
   portal:
-    build: .      
+    build: .
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_HASURA_URL: ${NEXT_PUBLIC_HASURA_URL}
-
+      NEXT_PUBLIC_ENCRYPTION_SECRET: ${NEXT_PUBLIC_ENCRYPTION_SECRET}
   # certificate:
   #   build:
   #     context: ./certificate
 
-#  captcha-service:
-#    build:
-#      context: ./captcha-service
-# volumes:
-#   db_data:
-#   fa_config:
+  #  captcha-service:
+  #    build:
+  #      context: ./captcha-service
+  # volumes:
+  #   db_data:
+  #   fa_config:
