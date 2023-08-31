@@ -42,7 +42,7 @@ const App = () => {
   };
   const JSONDataProvider = {
     ...JSONDp,
-    updateSamarthUser: (...r: any) => {},
+    updateSamarthUser: (...r: any) => { },
   };
   const prepareDataProviders = async (session: any) => {
     try {
@@ -72,7 +72,7 @@ const App = () => {
         }
       });
       setDataProvider(_dataProvider);
-    } catch (e) {}
+    } catch (e) { }
   };
   useEffect(() => {
     prepareDataProviders(session);
@@ -105,6 +105,21 @@ const App = () => {
     prepareDataProvidersAgain,
     false
   );
+
+  //@ts-ignore
+  let cacheReload = localStorage.getItem("cacheReloaded") ? JSON.parse(localStorage.getItem('cacheReloaded')) : null;
+  if (!cacheReload) {
+    caches.keys().then(function (names) {
+      for (let name of names) {
+        console.log("Clearing cache ->", name)
+        caches.delete(name);
+      }
+    });
+    localStorage.setItem('cacheReloaded', JSON.stringify(true));
+    //@ts-ignore
+    location.reload(true);
+  }
+
 
   return (
     <>
