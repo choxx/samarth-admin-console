@@ -1,0 +1,55 @@
+node() {
+    def secrets = [
+        [path: 'kv/samarth/admin-console', engineVersion: 2, secretValues: [
+          [envVar: 'NEXT_PUBLIC_HASURA_URL', vaultKey: 'NEXT_PUBLIC_HASURA_URL'],
+          [envVar: 'NEXT_PUBLIC_API_URL', vaultKey: 'NEXT_PUBLIC_API_URL'],
+          [envVar: 'NEXT_PUBLIC_ENCRYPTION_SECRET', vaultKey: 'NEXT_PUBLIC_ENCRYPTION_SECRET'],
+        ]
+      ],
+    ]
+    
+    def configuration = [vaultUrl: 'http://localhost:9055',  vaultCredentialId: 'vault-approle', engineVersion: 2]
+    
+    withCredentials([string(credentialsId: 'docker_server', variable: 'docker_server')]) {
+        properties([
+            parameters([
+                string(name: 'docker_repo', defaultValue: 'samagragovernance/samarth-admin-console', description: 'Docker Image Name'),
+                string(name: 'docker_server', defaultValue: "$docker_server", description: 'Docker Registry URL'),
+
+            ])
+        ])
+    }
+
+    stage('Checkout') {
+            cleanWs()
+            checkout scm
+            env.commit_id = env.BRANCH_NAME
+            echo "${env.commit_id}"
+    }
+  
+    stage('Vault') {
+      withVault([configuration: configuration, vaultSecrets: secrets]) {
+        sh "echo \"${env.NEXT_PUBLIC_HASURA_URL}\" >> .env"
+        sh "echo \"${env.NEXT_PUBLIC_API_URL}\" >> .env"
+        sh "echo \"${env.NEXT_PUBLIC_ENCRYPTION_SECRET}\" >> .env"
+      }  
+    }
+
+    stage('docker-build') {
+            sh '''
+                # docker build -f <location-of-docker-file> -t <tag-of-docker-image> <context-for-docker-image>
+                docker build -f ./dockerfile -t $docker_server/$docker_repo:$commit_id .
+                '''
+    }
+
+    stage('docker-push') {
+        sh '''
+                docker push $docker_server/$docker_repo:$commit_id
+                '''
+    }
+    stage('ArchiveArtifacts') {
+        sh("echo ${commit_id} > commit_id.txt")
+                archiveArtifacts 'commit_id.txt'
+                currentBuild.description = "${commit_id}"
+    }
+}
