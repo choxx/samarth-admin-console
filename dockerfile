@@ -19,7 +19,7 @@ ENV NODE_ENV production
 # Set the HOST environment variable to 0.0.0.0
 ENV HOST 0.0.0.0
 # If you are using a custom next.config.js file, uncomment this line.
-# COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
