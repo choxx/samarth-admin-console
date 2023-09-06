@@ -32,6 +32,8 @@ node() {
         sh "echo \"${env.NEXT_PUBLIC_HASURA_URL}\" >> .env"
         sh "echo \"${env.NEXT_PUBLIC_API_URL}\" >> .env"
         sh "echo \"${env.NEXT_PUBLIC_ENCRYPTION_SECRET}\" >> .env"
+        sh "pwd"
+        sh "cat .env"
       }  
     }
 
