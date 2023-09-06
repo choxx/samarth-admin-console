@@ -29,9 +29,9 @@ node() {
   
     stage('Vault') {
       withVault([configuration: configuration, vaultSecrets: secrets]) {
-        sh "echo \"${env.NEXT_PUBLIC_HASURA_URL}\" >> .env"
-        sh "echo \"${env.NEXT_PUBLIC_API_URL}\" >> .env"
-        sh "echo \"${env.NEXT_PUBLIC_ENCRYPTION_SECRET}\" >> .env"
+        sh "echo \"NEXT_PUBLIC_HASURA_URL=${env.NEXT_PUBLIC_HASURA_URL}\" >> .env"
+        sh "echo \"NEXT_PUBLIC_API_URL=${env.NEXT_PUBLIC_API_URL}\" >> .env"
+        sh "echo \"NEXT_PUBLIC_ENCRYPTION_SECRET=${env.NEXT_PUBLIC_ENCRYPTION_SECRET}\" >> .env"
         sh "pwd"
         sh "cat .env"
       }  
